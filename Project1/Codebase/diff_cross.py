@@ -33,7 +33,7 @@ class DiffCrossection:
         self.s = self.Ecm ** 2  # GeV
 
         self.m1const = self.e ** 4 / (9 * self.s ** 2)
-        self.m2const = self.g ** 2 / (self.costhetaW**2 * (self.s - self.mZ ** 2))
+        self.m2const = self.g ** 2 / (self.costhetaW**2 * (self.s - self.mZ ** 2)**2)
         self.m1m2const = (
             self.e ** 2
             * self.g ** 2
