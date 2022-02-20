@@ -1,0 +1,6 @@
+tensorflow==2.6.0
+autograd
+scikit-learn
+numpy
+matplotlib
+seaborn
