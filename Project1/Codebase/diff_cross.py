@@ -98,9 +98,11 @@ class DiffCrossection:
         )
 
     def plot_cross(self):
-        plt.plot(self.costheta, self.diff_cross())
-        plt.xlabel(r"cos(\theta) ")
-        plt.ylabel("diff cross section")
+        plt.plot(self.costheta, self.diff_cross(), label=r"d$\sigma$/cos($\theta$) ")
+        plt.xlabel(r"cos($\theta$) ")
+        plt.ylabel(r"$d\sigma/d cos(\theta)$")
+        plt.legend()
+        plt.savefig("../Figures/cross_sec_sqrts_200GeV.pdf")
         plt.show()
 
 
