@@ -8,3 +8,10 @@ for muon muon scattering, creating a bottom-anti bottom quark pair. <br>
 <br>
 Project 2 is undetermined <br>
 Project 3 is undetermined <br>
+<br>
+To run the code, first install the requirements. This can be done calling this command:
+
+```
+pip install -r requirements
+
+```
