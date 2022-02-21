@@ -56,6 +56,10 @@ class DiffCrossection:
         self.pk = self.E2 + self.p**2
         self.p_k_ = self.E2 + self.p_**2
 
+        comp_data = np.loadtxt("comphep_200GeV.txt", skiprows=3)
+        self.comphep_degree = comp_data[:, 0]
+        self.comphep_diff = comp_data[:, 1]
+
     def M1squared(self):
         return self.m1const * (
             self.pp_kk_
