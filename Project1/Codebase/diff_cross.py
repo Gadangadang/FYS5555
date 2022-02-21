@@ -162,6 +162,9 @@ class DiffCrossection:
         plt.savefig("../Figures/m2_sqrts_200GeV.pdf")
         plt.show()
 
+def integrate(start_angle, end_angle):
+    domain = np.cos(np.linspace(start_angle, end_angle, 1001))
+    dcs = DiffCrossection(domain, 200)
 
 if __name__ == "__main__":
 
