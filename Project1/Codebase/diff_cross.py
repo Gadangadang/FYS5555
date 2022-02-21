@@ -17,7 +17,7 @@ class DiffCrossection:
         self.costhetaW = np.cos(self.thetaw)
 
         self.g = self.e / self.sinthetaW
-        self.gz = self.gz / np.cos(self.thetaw)
+        self.gz = self.g / np.cos(self.thetaw)
 
         # Z boson vertex constants
         self.g_Amu = self.gz * 0.5 * (-0.5)
@@ -55,10 +55,7 @@ class DiffCrossection:
         self.pk_p_k = (self.E**2 + self.p * self.p_ * self.costheta) ** 2
         self.pk = self.E2 + self.p**2
         self.p_k_ = self.E2 + self.p_**2
-
-        comp_hep_data = np.loadtxt("comphep_200GeV.txt", skiprows=3)
-        self.comphep_degree = comp_hep_data[:, 0]
-        self.comphep_diff = comp_hep_data[:, 1]
+(self.E**2 - self.p * self.p_ * self.costheta) ** 21]
 
     def M1squared(self):
         return self.m1const * (
