@@ -26,8 +26,11 @@ class DiffCrossection:
         self.g_Vb = self.gz * 0.5 * (-0.5 - 2 * (-1 / 3) * self.sinthetaW ** 2)
 
         self.four_gs = self.g_Amu * self.g_Vmu * self.g_Ab * self.g_Vb
+        
         self.A = self.g_Amu ** 2 + self.g_Vmu ** 2
+        self.Atilde = self.g_Amu ** 2 - self.g_Vmu ** 2
         self.B = self.g_Ab ** 2 + self.g_Vb ** 2
+        self.Btilde = self.g_Ab ** 2 - self.g_Vb ** 2
 
         # Energy and com split
         self.Ecm = energy_centermass  # GeV
