@@ -133,7 +133,7 @@ class DiffCrossection:
         plt.plot(
             self.costheta,
             self.diff_cross(),
-            label=r"Analytical $d\sigma/d cos(\theta)$ for $M_{tot}^2$",
+            label=r"$d\sigma/d cos(\theta)$ for $M_{tot}^2$",
         )
         plt.plot(
             self.costheta,
