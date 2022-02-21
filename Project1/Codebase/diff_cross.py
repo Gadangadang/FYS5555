@@ -20,10 +20,14 @@ class DiffCrossection:
         self.gz = self.g / np.cos(self.thetaw)
 
         # Z boson vertex constants
-        self.g_Amu = -0.5*0.5  #self.gz * 0.5 * (-0.5)
-        self.g_Vmu = -0.04*0.5 #self.gz * 0.5 * (-0.5 - 2 * (-1) * self.sinthetaW**2)
-        self.g_Ab = -0.5*0.5   #self.gz * 0.5 * (-0.5)
-        self.g_Vb = -0.35*0.5  #self.gz * 0.5 * (-0.5 - 2 * (-1 / 3) * self.sinthetaW**2)
+        self.g_Amu = -0.5 * 0.5  # self.gz * 0.5 * (-0.5)
+        self.g_Vmu = (
+            -0.04 * 0.5
+        )  # self.gz * 0.5 * (-0.5 - 2 * (-1) * self.sinthetaW**2)
+        self.g_Ab = -0.5 * 0.5  # self.gz * 0.5 * (-0.5)
+        self.g_Vb = (
+            -0.35 * 0.5
+        )  # self.gz * 0.5 * (-0.5 - 2 * (-1 / 3) * self.sinthetaW**2)
 
         self.four_gs = self.g_Amu * self.g_Vmu * self.g_Ab * self.g_Vb
 
@@ -60,6 +64,10 @@ class DiffCrossection:
         self.comphep_degree = comp_data[:, 0]
         self.comphep_diff = comp_data[:, 1]
 
+        self.cross_const = (
+            1 / (2.56810e-9) / (32 * np.pi * self.s) * self.p_ / self.p * 3
+        )
+
     def M1squared(self):
         return self.m1const * (
             self.pp_kk_
@@ -93,19 +101,23 @@ class DiffCrossection:
         )
 
     def diff_cross(self):
-        return (
-            1
-            / (2.56810e-9)
-            / (32 * np.pi * self.s)
-            * self.p_
-            / self.p
-            * 3
-            * (self.M1squared() + self.M2squared() + 2 * self.M1M2())
+        return self.cross_const * (
+            self.M1squared() + self.M2squared() + 2 * self.M1M2()
         )
 
     def plot_cross(self):
-        plt.plot(self.costheta, self.diff_cross(), label="Analytical")
-        plt.plot(self.comphep_degree, self.comphep_diff, "r--", label="CompHEP")
+        plt.plot(
+            self.costheta,
+            self.diff_cross(),
+            label=r"Analytical $d\sigma/d cos(\theta)$ for  $M_{tot}^2$",
+        )
+        plt.plot(
+            self.comphep_degree,
+            self.comphep_diff,
+            "r--",
+            label=r"CompHEP $d\sigma/d cos(\theta)$ for$M_{tot}^2$",
+        )
+
         plt.xlabel(r"cos($\theta$) ")
         plt.ylabel(r"$\frac{d\sigma}{d \cos{(\theta)}}$")
         plt.legend()
@@ -117,9 +129,43 @@ class DiffCrossection:
         plt.savefig("../Figures/cross_sec_sqrts_200GeV.pdf")
         plt.show()
 
+    def plot_m2(self):
+        plt.plot(
+            self.costheta,
+            self.diff_cross(),
+            label=r"Analytical $d\sigma/d cos(\theta)$ for $M_{tot}^2$",
+        )
+        plt.plot(
+            self.costheta,
+            self.cross_const * self.M1squared(),
+            label=r"$d\sigma/d cos(\theta)$ for $M_{\gamma}^2$",
+        )
+        plt.plot(
+            self.costheta,
+            self.cross_const * self.M2squared(),
+            label=r"$d\sigma/d cos(\theta)$ for $M_{Z}^2$",
+        )
+        plt.plot(
+            self.costheta,
+            self.cross_const * self.M1M2(),
+            label=r"$d\sigma/d cos(\theta)$ for $M_{\gamma,Z}^2$",
+        )
+
+        plt.xlabel(r"cos($\theta$) ")
+        plt.ylabel(r"$\frac{d\sigma}{d \cos{(\theta)}}$")
+        plt.legend()
+        plt.title(
+            r" $\frac{d\sigma}{d \cos{(\theta)}}$ for $\mu^+ \mu^- \to b \bar{b}$ with $\sqrt{s}$ = "
+            + str(np.sqrt(self.s))
+            + " GeV"
+        )
+        plt.savefig("../Figures/m2_sqrts_200GeV.pdf")
+        plt.show()
+
 
 if __name__ == "__main__":
 
     theta_interval = np.linspace(0, np.pi, 1001)
     dcs = DiffCrossection(theta_interval, 200)
     dcs.plot_cross()
+    dcs.plot_m2()
