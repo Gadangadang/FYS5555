@@ -55,7 +55,6 @@ class DiffCrossection:
         self.pk_p_k = (self.E**2 + self.p * self.p_ * self.costheta) ** 2
         self.pk = self.E2 + self.p**2
         self.p_k_ = self.E2 + self.p_**2
-(self.E**2 - self.p * self.p_ * self.costheta) ** 21]
 
     def M1squared(self):
         return self.m1const * (
