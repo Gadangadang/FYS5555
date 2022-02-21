@@ -39,10 +39,11 @@ class DiffCrossection:
         self.s = self.Ecm**2  # GeV
 
         # Amplitude constants
-        self.m1const = self.e**4 / (9 * self.s**2)
-        self.m2const = self.gz**4 / (self.s - self.mZ**2) ** 2
+        self.m1const = 8 * self.e**4 / (9 * self.s**2)
+        self.m2const = 8 * self.gz**4 / (self.s - self.mZ**2) ** 2
         self.m1m2const = (
-            self.e**2
+            8
+            * self.e**2
             * self.g**2
             / (3 * self.costhetaW**2 * self.s * (self.s - self.mZ**2))
         )
@@ -60,43 +61,31 @@ class DiffCrossection:
         self.comphep_diff = comp_hep_data[:, 1]
 
     def M1squared(self):
-        return (
-            self.m1const
-            * 8
-            * (
-                self.pp_kk_
-                + self.pk_p_k
-                + self.m_b**2 * self.pk
-                + self.m_mu**2 * self.p_k_
-                + 2 * self.m_b**2 * self.m_mu**2
-            )
+        return self.m1const * (
+            self.pp_kk_
+            + self.pk_p_k
+            + self.m_b**2 * self.pk
+            + self.m_mu**2 * self.p_k_
+            + 2 * self.m_b**2 * self.m_mu**2
         )
 
     def M2squared(self):
-        return (
-            self.m2const
-            * 8
-            * (
-                self.A * self.B * (self.pp_kk_ + self.pk_p_k)
-                - self.Atilde * self.B * self.m_b**2 * self.pk
-                - self.A * self.Btilde * self.m_mu**2 * self.p_k_
-                + 2 * self.m_b**2 * self.m_mu**2 * self.Atilde * self.Btilde
-                - 4 * self.four_gs * (self.pp_kk_ - self.pk_p_k)
-            )
+        return self.m2const * (
+            self.A * self.B * (self.pp_kk_ + self.pk_p_k)
+            - self.Atilde * self.B * self.m_b**2 * self.pk
+            - self.A * self.Btilde * self.m_mu**2 * self.p_k_
+            + 2 * self.m_b**2 * self.m_mu**2 * self.Atilde * self.Btilde
+            - 4 * self.four_gs * (self.pp_kk_ - self.pk_p_k)
         )
 
     def M1M2(self):
-        return (
-            self.m1m2const
-            * 8
-            * (
-                self.g_Ab * self.g_Vb * self.pk_p_k
-                + self.g_Amu * self.g_Vmu * self.pp_kk_
-                + self.g_Vb * self.m_b**2 * self.pk
-                + self.g_Vmu * self.m_mu**2 * self.p_k_
-                + 2 * self.m_b**2 * self.m_mu**2 * self.g_Vb * self.g_Vmu
-                - self.g_Amu * self.g_Ab * (self.pp_kk_ - self.pk_p_k)
-            )
+        return self.m1m2const * (
+            self.g_Ab * self.g_Vb * self.pk_p_k
+            + self.g_Amu * self.g_Vmu * self.pp_kk_
+            + self.g_Vb * self.m_b**2 * self.pk
+            + self.g_Vmu * self.m_mu**2 * self.p_k_
+            + 2 * self.m_b**2 * self.m_mu**2 * self.g_Vb * self.g_Vmu
+            - self.g_Amu * self.g_Ab * (self.pp_kk_ - self.pk_p_k)
         )
 
     def diff_cross(self):
