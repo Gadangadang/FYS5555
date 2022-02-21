@@ -20,10 +20,10 @@ class DiffCrossection:
         self.gz = self.g / np.cos(self.thetaw)
 
         # Z boson vertex constants
-        self.g_Amu = self.gz * 0.5 * (-0.5)
-        self.g_Vmu = self.gz * 0.5 * (-0.5 - 2 * (-1) * self.sinthetaW**2)
-        self.g_Ab = self.gz * 0.5 * (-0.5)
-        self.g_Vb = self.gz * 0.5 * (-0.5 - 2 * (-1 / 3) * self.sinthetaW**2)
+        self.g_Amu = -0.5*0.5  #self.gz * 0.5 * (-0.5)
+        self.g_Vmu = -0.04*0.5 #self.gz * 0.5 * (-0.5 - 2 * (-1) * self.sinthetaW**2)
+        self.g_Ab = -0.5*0.5   #self.gz * 0.5 * (-0.5)
+        self.g_Vb = -0.35*0.5  #self.gz * 0.5 * (-0.5 - 2 * (-1 / 3) * self.sinthetaW**2)
 
         self.four_gs = self.g_Amu * self.g_Vmu * self.g_Ab * self.g_Vb
 
@@ -80,11 +80,15 @@ class DiffCrossection:
 
     def M1M2(self):
         return self.m1m2const * (
-            self.g_Ab * self.g_Vb * self.pk_p_k
-            + self.g_Amu * self.g_Vmu * self.pp_kk_
-            + self.g_Vb * self.m_b**2 * self.pk
-            + self.g_Vmu * self.m_mu**2 * self.p_k_
-            + 2 * self.m_b**2 * self.m_mu**2 * self.g_Vb * self.g_Vmu
+            self.g_Vmu
+            * self.g_Vb
+            * (
+                self.pk_p_k
+                + self.pp_kk_
+                + self.m_b**2 * self.pk
+                + self.m_mu**2 * self.p_k_
+                + 2 * self.m_b**2 * self.m_mu**2
+            )
             - self.g_Amu * self.g_Ab * (self.pp_kk_ - self.pk_p_k)
         )
 
@@ -116,6 +120,6 @@ class DiffCrossection:
 
 if __name__ == "__main__":
 
-    theta_interval = np.linspace(-np.pi, np.pi, 1001)
+    theta_interval = np.linspace(0, np.pi, 1001)
     dcs = DiffCrossection(theta_interval, 200)
     dcs.plot_cross()
