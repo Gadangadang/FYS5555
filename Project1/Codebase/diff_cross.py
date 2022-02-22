@@ -237,7 +237,7 @@ def intergrate_crossec(start, stop, energy_range, particle):
     plt.xlabel(r"COM energy $\sqrt{s}$")
     plt.ylabel("Asymmetry")
     plt.title(r"Asymmetry for $\mu^+\mu^- \to$ " + particle_data[particle][1] + " as function of $\sqrt{s}$")
-    plt.savefig("../Figures/asymmetry_comp.pdf")
+    plt.savefig("../Figures/asymmetry_comp_"+particle_data[particle][1]+".pdf")
     plt.show()
 
 
