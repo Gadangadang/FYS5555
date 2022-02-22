@@ -250,8 +250,8 @@ def total_cross_section(energy_range):
     N = 1000
 
     cross_section_total = np.zeros_like(energy_range)
-    cross_section_gamma = np.zeros_like(energy_range)
-    cross_section_z = np.zeros_like(energy_range)
+    #cross_section_gamma = np.zeros_like(energy_range)
+    #cross_section_z = np.zeros_like(energy_range)
     new_theta = np.linspace(0, np.pi, N)
     
 
@@ -264,20 +264,20 @@ def total_cross_section(energy_range):
         diff_cross_gamma1 = dcs1.M1squared()
         diff_cross_z1 = dcs1.M2squared()
 
-        tot_cross1 = sp.integrate.simps(diff_cross_sec1)
-        gamma_cross1 = sp.integrate.simps(diff_cross_gamma1)
-        z_cross1 = sp.integrate.simps(diff_cross_z1)
+        tot_cross1 = 0.001*sp.integrate.simps(diff_cross_sec1, np.cos(new_theta))
+        #gamma_cross1 = 0.001*sp.integrate.simps(diff_cross_gamma1, new_theta)
+        #z_cross1 = 0.001*sp.integrate.simps(diff_cross_z1, new_theta)
        
 
         cross_section_total[index] = tot_cross1
-        cross_section_gamma[index] = gamma_cross1
-        cross_section_z[index] = z_cross1
+        #cross_section_gamma[index] = gamma_cross1
+        #cross_section_z[index] = z_cross1
 
-    #tot_cross_comphep = np.loadtxt("../datasets/total_cross.txt", skiprows=3)
+    tot_cross_comphep = np.loadtxt("../datasets/tot_cross_comphep.txt", skiprows=3)
     plt.plot(energy_range, cross_section_total, label=r"$\sigma_{total}$")
-    #plt.plot(tot_cross_comphep[:, 0], tot_cross_comphep[:, 1], "r--", label="CompHEP cross_section")
-    plt.plot(energy_range, cross_section_gamma, label=r"$\sigma_{\gamma}$")
-    plt.plot(energy_range, cross_section_z, label=r"$\sigma_{Z}$")
+    plt.plot(tot_cross_comphep[:, 0], tot_cross_comphep[:, 1], "r--", label="CompHEP cross_section")
+    #plt.plot(energy_range, cross_section_gamma, label=r"$\sigma_{\gamma}$")
+    #plt.plot(energy_range, cross_section_z, label=r"$\sigma_{Z}$")
     plt.legend()
     plt.xlabel(r"COM energy $\sqrt{s}$")
     plt.ylabel(r"Cross section $\sigma$")
