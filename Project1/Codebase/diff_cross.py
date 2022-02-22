@@ -7,10 +7,10 @@ class DiffCrossection:
     def __init__(self, theta_interval, energy_centermass, particle):
 
         particle_data = {
-            "electron": [0.000511, 0.5*(-0.5), 0.5*(-0.04), -1],
-            "bottom": [4.85, 0.5*(-0.5), 0.5*(-0.35), -1/3],
-            "charm" : [1.275, 0.5*0.5, 0.5*0.19, 2/3], 
-            "muon" : [0.1057, 0.5*(-0.5), 0.5*(-0.04), -1]
+            "electron": [0.000511, 0.5 * (-0.5), 0.5 * (-0.04), -1],
+            "bottom": [4.85, 0.5 * (-0.5), 0.5 * (-0.35), -1 / 3],
+            "charm": [1.275, 0.5 * 0.5, 0.5 * 0.19, 2 / 3],
+            "muon": [0.1057, 0.5 * (-0.5), 0.5 * (-0.04), -1],
         }
 
         # General constants
@@ -18,8 +18,7 @@ class DiffCrossection:
         self.m_mu = 0.1057  # GeV
         self.mZ = 91.1876  # GeV
         self.m_other = particle_data[particle][0]
-        Q = (particle_data[particle][3])
-        
+        Q = particle_data[particle][3]
 
         self.sinthetaW = 0.48076
         self.thetaw = np.arcsin(self.sinthetaW)
@@ -33,7 +32,9 @@ class DiffCrossection:
         self.g_Amu = particle_data["muon"][1]
         self.g_Vmu = particle_data["muon"][2]
         self.g_A_other = particle_data[particle][1]
-        self.g_V_other = particle_data[particle][2]  # self.gz * 0.5 * (-0.5 - 2 * (-1 / 3) * self.sinthetaW**2)
+        self.g_V_other = particle_data[particle][
+            2
+        ]  # self.gz * 0.5 * (-0.5 - 2 * (-1 / 3) * self.sinthetaW**2)
 
         self.four_gs = self.g_Amu * self.g_Vmu * self.g_A_other * self.g_V_other
 
@@ -185,9 +186,9 @@ def intergrate_crossec(start, stop, energy_range, particle):
 
     particle_data = {
         "bottom": ["bottom_asymmetry.txt", r"$b\bar{b}$"],
-        "charm" : ["charm_asymmetry.txt", r"$c\bar{c}$"],
-        "muon" : ["muon_asymmetry.txt", r"$\mu^+\mu^-$"],
-        "electron" : ["electron_asymmetry.txt", r"$e^+e^-$"]
+        "charm": ["charm_asymmetry.txt", r"$c\bar{c}$"],
+        "muon": ["muon_asymmetry.txt", r"$\mu^+\mu^-$"],
+        "electron": ["electron_asymmetry.txt", r"$e^+e^-$"],
     }
 
     N = 1000
@@ -227,7 +228,7 @@ def intergrate_crossec(start, stop, energy_range, particle):
         )
         asymmetry_z[index] = (z_cross1 - z_cross2) / (z_cross1 + z_cross2)
 
-    asym_comphep = np.loadtxt("../datasets/"+particle_data[particle][0], skiprows=3)
+    asym_comphep = np.loadtxt("../datasets/" + particle_data[particle][0], skiprows=3)
 
     plt.plot(energy_range, asymmetry, label="Total asymmetry")
     plt.plot(asym_comphep[:, 0], asym_comphep[:, 1], "r--", label="CompHEP asymmetry")
@@ -236,8 +237,12 @@ def intergrate_crossec(start, stop, energy_range, particle):
     plt.legend()
     plt.xlabel(r"COM energy $\sqrt{s}$")
     plt.ylabel("Asymmetry")
-    plt.title(r"Asymmetry for $\mu^+\mu^- \to$ " + particle_data[particle][1] + " as function of $\sqrt{s}$")
-    plt.savefig("../Figures/asymmetry_comp_"+particle_data[particle][1]+".pdf")
+    plt.title(
+        r"Asymmetry for $\mu^+\mu^- \to$ "
+        + particle_data[particle][1]
+        + " as function of $\sqrt{s}$"
+    )
+    plt.savefig("../Figures/asymmetry_comp_" + particle_data[particle][1] + ".pdf")
     plt.show()
 
 
@@ -245,4 +250,3 @@ if __name__ == "__main__":
     names = ["bottom", "charm", "electron"]
     for name in names:
         intergrate_crossec(0, np.pi, np.linspace(10, 200, 191), name)
-    
