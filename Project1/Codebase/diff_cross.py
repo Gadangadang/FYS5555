@@ -162,9 +162,23 @@ class DiffCrossection:
         plt.savefig("../Figures/m2_sqrts_200GeV.pdf")
         plt.show()
 
+    def intergrate_crossec(self, start, stop):
+        new_costheta = np.cos(np.linspace(start, stop, 1001))
+        self.costheta = new_costheta
+        
+        
+        diff_cross_sec = self.diff_cross()
+        
+        tot_cross1 = integrate(diff_cross_sec, new_costheta)
+        
+        
+        return 0
+
 
 if __name__ == "__main__":
-
+    from scipy import integrate
+    
+    
     theta_interval = np.linspace(0, np.pi, 1001)
     dcs = DiffCrossection(theta_interval, 200)
     dcs.plot_cross()
