@@ -182,7 +182,7 @@ class DiffCrossection:
         plt.show()
 
 
-def intergrate_crossec(start, stop, energy_range, particle):
+def asymmetry(start, stop, energy_range, particle):
 
     particle_data = {
         "bottom": ["bottom_asymmetry.txt", r"$b\bar{b}$"],
@@ -195,19 +195,19 @@ def intergrate_crossec(start, stop, energy_range, particle):
     asymmetry = np.zeros_like(energy_range)
     asymmetry_gamma = np.zeros_like(energy_range)
     asymmetry_z = np.zeros_like(energy_range)
-    new_costheta = np.linspace(start, stop, N)
+    new_theta = np.linspace(start, stop, N)
 
     for index, energy_cm in enumerate(energy_range):
 
         # sigma for angle less than pi/2
-        dcs1 = DiffCrossection(new_costheta, energy_cm, particle)
+        dcs1 = DiffCrossection(new_theta, energy_cm, particle)
         dcs1.compute_momentum_products()
         diff_cross_sec1 = dcs1.diff_cross()
         diff_cross_gamma1 = dcs1.M1squared()
         diff_cross_z1 = dcs1.M2squared()
 
         # sigma for angle larger than pi/2
-        dcs2 = DiffCrossection(new_costheta, energy_cm, particle)
+        dcs2 = DiffCrossection(new_theta, energy_cm, particle)
         dcs2.compute_momentum_products()
         diff_cross_sec2 = dcs2.diff_cross()
         diff_cross_gamma2 = dcs2.M1squared()
@@ -246,7 +246,55 @@ def intergrate_crossec(start, stop, energy_range, particle):
     plt.show()
 
 
-if __name__ == "__main__":
-    names = ["bottom", "charm", "electron"]
+def total_cross_section(energy_range):
+    N = 1000
+
+    cross_section_total = np.zeros_like(energy_range)
+    cross_section_gamma = np.zeros_like(energy_range)
+    cross_section_z = np.zeros_like(energy_range)
+    new_theta = np.linspace(0, np.pi, N)
+    
+
+    for index, energy_cm in enumerate(energy_range):
+
+        # sigma for angle less than pi/2
+        dcs1 = DiffCrossection(new_theta, energy_cm, "bottom")
+        dcs1.compute_momentum_products()
+        diff_cross_sec1 = dcs1.diff_cross()
+        diff_cross_gamma1 = dcs1.M1squared()
+        diff_cross_z1 = dcs1.M2squared()
+
+        tot_cross1 = sp.integrate.simps(diff_cross_sec1)
+        gamma_cross1 = sp.integrate.simps(diff_cross_gamma1)
+        z_cross1 = sp.integrate.simps(diff_cross_z1)
+       
+
+        cross_section_total[index] = tot_cross1
+        cross_section_gamma[index] = gamma_cross1
+        cross_section_z[index] = z_cross1
+
+    #tot_cross_comphep = np.loadtxt("../datasets/total_cross.txt", skiprows=3)
+    plt.plot(energy_range, cross_section_total, label=r"$\sigma_{total}$")
+    #plt.plot(tot_cross_comphep[:, 0], tot_cross_comphep[:, 1], "r--", label="CompHEP cross_section")
+    plt.plot(energy_range, cross_section_gamma, label=r"$\sigma_{\gamma}$")
+    plt.plot(energy_range, cross_section_z, label=r"$\sigma_{Z}$")
+    plt.legend()
+    plt.xlabel(r"COM energy $\sqrt{s}$")
+    plt.ylabel(r"Cross section $\sigma$")
+    plt.title(
+        r"Cross section for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$"
+    )
+    plt.savefig("../Figures/total_cross_section.pdf")
+    plt.show()
+
+def asymmetry_run(names, energy_range):
     for name in names:
-        intergrate_crossec(0, np.pi, np.linspace(10, 200, 191), name)
+        asymmetry(0, np.pi, energy_range, name)
+
+if __name__ == "__main__":
+    names = ["bottom", "charm", "electron", "muon"]
+    energy_range = np.linspace(10, 200, 191)
+    
+    #asymmetry_run(names, energy_range)
+
+    total_cross_section(energy_range)
