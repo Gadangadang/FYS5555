@@ -159,17 +159,17 @@ class DiffCrossection:
         )
         plt.plot(
             self.costheta,
-            self.cross_const * self.M1squared(),
+            self.M1squared(),
             label=r"$d\sigma/d cos(\theta)$ for $M_{\gamma}^2$",
         )
         plt.plot(
             self.costheta,
-            self.cross_const * self.M2squared(),
+            self.M2squared(),
             label=r"$d\sigma/d cos(\theta)$ for $M_{Z}^2$",
         )
         plt.plot(
             self.costheta,
-            self.cross_const * self.M1M2(),
+            self.M1M2(),
             label=r"$d\sigma/d cos(\theta)$ for $M_{\gamma,Z}^2$",
         )
 
@@ -356,14 +356,14 @@ if __name__ == "__main__":
     energy_range = np.linspace(10, 200, 200)
 
     # Object for plotting
-    # dcs = DiffCrossection(np.linspace(0, np.pi, 1000), 200, "bottom")
-    # dcs.compute_momentum_products()
-    # dcs.plot_cross()
-    # dcs.plot_m2()
+    dcs = DiffCrossection(np.linspace(0, np.pi, 1000), 200, "bottom")
+    dcs.compute_momentum_products()
+    dcs.plot_cross()
+    dcs.plot_m2()
 
     # Other tasks
 
     # total_cross_section(energy_range)
     # asymmetry_run(names, energy_range)
 
-    plot_Z_prime()
+    #plot_Z_prime()
