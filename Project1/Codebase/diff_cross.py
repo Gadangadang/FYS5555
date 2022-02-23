@@ -17,6 +17,7 @@ class DiffCrossection:
         self.costheta = np.cos(theta_interval)
         self.m_mu = 0.1057  # GeV
         self.mZ = 91.1876  # GeV
+        self.widthZ = 2.4363
         self.m_other = particle_data[particle][0]
         Q = particle_data[particle][3]
 
@@ -49,7 +50,7 @@ class DiffCrossection:
 
         # Amplitude constants
         self.m1const = 8 * self.e**4 * Q**2 / (self.s**2)
-        self.m2const = 8 * self.gz**4 / (self.s - self.mZ**2) ** 2
+        self.m2const = 8 * self.gz**4 / ((self.s - self.mZ**2) ** 2 + self.mZ**2*self.widthZ**2)
         self.m1m2const = -(
             8
             * self.e**2
