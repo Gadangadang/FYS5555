@@ -6,6 +6,7 @@ import scipy as sp
 class DiffCrossection:
     def __init__(self, theta_interval, energy_centermass, particle):
 
+        # Dictionary, with column "mass", "c_V", "c_A", "charge"
         particle_data = {
             "electron": [0.000511, 0.5 * (-0.5), 0.5 * (-0.04), -1],
             "bottom": [4.85, 0.5 * (-0.5), 0.5 * (-0.35), -1 / 3],
