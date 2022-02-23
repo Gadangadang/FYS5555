@@ -32,9 +32,7 @@ class DiffCrossection:
         self.g_Amu = particle_data["muon"][1]
         self.g_Vmu = particle_data["muon"][2]
         self.g_A_other = particle_data[particle][1]
-        self.g_V_other = particle_data[particle][
-            2
-        ]  # self.gz * 0.5 * (-0.5 - 2 * (-1 / 3) * self.sinthetaW**2)
+        self.g_V_other = particle_data[particle][2]  
 
         self.four_gs = self.g_Amu * self.g_Vmu * self.g_A_other * self.g_V_other
 
@@ -138,7 +136,7 @@ class DiffCrossection:
         )
 
         plt.xlabel(r"cos($\theta$) ")
-        plt.ylabel(r"$\frac{d\sigma}{d \cos{(\theta)}}$")
+        plt.ylabel(r"$\frac{d\sigma}{d \cos{(\theta)}}$ [pb/rad]")
         plt.legend()
         plt.title(
             r" $\frac{d\sigma}{d \cos{(\theta)}}$ for $\mu^+ \mu^- \to b \bar{b}$ with $\sqrt{s}$ = "
@@ -171,7 +169,7 @@ class DiffCrossection:
         )
 
         plt.xlabel(r"cos($\theta$) ")
-        plt.ylabel(r"$\frac{d\sigma}{d \cos{(\theta)}}$")
+        plt.ylabel(r"$\frac{d\sigma}{d \cos{(\theta)}}$ [pb/rad]")
         plt.legend()
         plt.title(
             r" $\frac{d\sigma}{d \cos{(\theta)}}$ for $\mu^+ \mu^- \to b \bar{b}$ with $\sqrt{s}$ = "
@@ -216,6 +214,8 @@ def asymmetry(start, stop, energy_range, particle):
         tot_cross1 = sp.integrate.simps(diff_cross_sec1[: int(N / 2)])
         tot_cross2 = sp.integrate.simps(diff_cross_sec2[int(N / 2) :])
 
+        print(tot_cross1, " ", tot_cross2)
+
         gamma_cross1 = sp.integrate.simps(diff_cross_gamma1[: int(N / 2)])
         gamma_cross2 = sp.integrate.simps(diff_cross_gamma2[int(N / 2) :])
 
@@ -235,7 +235,7 @@ def asymmetry(start, stop, energy_range, particle):
     plt.plot(energy_range, asymmetry_gamma, label=r"$\gamma$ asymmetry")
     plt.plot(energy_range, asymmetry_z, label="Z asymmetry")
     plt.legend()
-    plt.xlabel(r"COM energy $\sqrt{s}$")
+    plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]")
     plt.ylabel("Asymmetry")
     plt.title(
         r"Asymmetry for $\mu^+\mu^- \to$ "
@@ -250,51 +250,63 @@ def total_cross_section(energy_range):
     N = 1000
 
     cross_section_total = np.zeros_like(energy_range)
-    #cross_section_gamma = np.zeros_like(energy_range)
-    #cross_section_z = np.zeros_like(energy_range)
+    # cross_section_gamma = np.zeros_like(energy_range)
+    # cross_section_z = np.zeros_like(energy_range)
     new_theta = np.linspace(0, np.pi, N)
-    
 
     for index, energy_cm in enumerate(energy_range):
 
         # sigma for angle less than pi/2
-        dcs1 = DiffCrossection(new_theta, energy_cm, "bottom")
+        dcs1 = DiffCrossection(-new_theta, energy_cm, "bottom")
         dcs1.compute_momentum_products()
         diff_cross_sec1 = dcs1.diff_cross()
         diff_cross_gamma1 = dcs1.M1squared()
         diff_cross_z1 = dcs1.M2squared()
 
-        tot_cross1 = 0.001*sp.integrate.simps(diff_cross_sec1, np.cos(new_theta))
-        #gamma_cross1 = 0.001*sp.integrate.simps(diff_cross_gamma1, new_theta)
-        #z_cross1 = 0.001*sp.integrate.simps(diff_cross_z1, new_theta)
-       
+        tot_cross1 = sp.integrate.simps(diff_cross_sec1, -np.cos(new_theta))
+        print(tot_cross1)
+        # gamma_cross1 = 0.001*sp.integrate.simps(diff_cross_gamma1, new_theta)
+        # z_cross1 = 0.001*sp.integrate.simps(diff_cross_z1, new_theta)
 
         cross_section_total[index] = tot_cross1
-        #cross_section_gamma[index] = gamma_cross1
-        #cross_section_z[index] = z_cross1
+        # cross_section_gamma[index] = gamma_cross1
+        # cross_section_z[index] = z_cross1
 
     tot_cross_comphep = np.loadtxt("../datasets/tot_cross_comphep.txt", skiprows=3)
     plt.plot(energy_range, cross_section_total, label=r"$\sigma_{total}$")
-    plt.plot(tot_cross_comphep[:, 0], tot_cross_comphep[:, 1], "r--", label="CompHEP cross_section")
-    #plt.plot(energy_range, cross_section_gamma, label=r"$\sigma_{\gamma}$")
-    #plt.plot(energy_range, cross_section_z, label=r"$\sigma_{Z}$")
-    plt.legend()
-    plt.xlabel(r"COM energy $\sqrt{s}$")
-    plt.ylabel(r"Cross section $\sigma$")
-    plt.title(
-        r"Cross section for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$"
+    plt.plot(
+        tot_cross_comphep[:, 0],
+        tot_cross_comphep[:, 1],
+        "r--",
+        label="CompHEP cross_section",
     )
+    # plt.plot(energy_range, cross_section_gamma, label=r"$\sigma_{\gamma}$")
+    # plt.plot(energy_range, cross_section_z, label=r"$\sigma_{Z}$")
+    plt.legend()
+    plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]")
+    plt.ylabel(r"Cross section $\sigma$ [pb/rad]")
+    plt.title(r"Cross section for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$")
     plt.savefig("../Figures/total_cross_section.pdf")
     plt.show()
+
 
 def asymmetry_run(names, energy_range):
     for name in names:
         asymmetry(0, np.pi, energy_range, name)
 
+
 if __name__ == "__main__":
     names = ["bottom", "charm", "electron", "muon"]
-    energy_range = np.linspace(10, 200, 191)
-    
-    #asymmetry_run(names, energy_range)
+    energy_range = np.linspace(10, 200, 200)
 
     total_cross_section(energy_range)
+    # asymmetry_run(names, energy_range)
+    exit()
+
+    # Object for plotting
+    dcs = DiffCrossection(np.linspace(0, np.pi, 1000), 200, "bottom")
+    dcs.compute_momentum_products()
+    dcs.plot_cross()
+    dcs.plot_m2()
+
+    # Other tasks
