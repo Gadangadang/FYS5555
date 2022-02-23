@@ -33,7 +33,7 @@ class DiffCrossection:
         self.g_Amu = particle_data["muon"][1]
         self.g_Vmu = particle_data["muon"][2]
         self.g_A_other = particle_data[particle][1]
-        self.g_V_other = particle_data[particle][2]  
+        self.g_V_other = particle_data[particle][2]
 
         self.four_gs = self.g_Amu * self.g_Vmu * self.g_A_other * self.g_V_other
 
@@ -50,7 +50,11 @@ class DiffCrossection:
 
         # Amplitude constants
         self.m1const = 8 * self.e**4 * Q**2 / (self.s**2)
-        self.m2const = 8 * self.gz**4 / ((self.s - self.mZ**2) ** 2 + self.mZ**2*self.widthZ**2)
+        self.m2const = (
+            8
+            * self.gz**4
+            / ((self.s - self.mZ**2) ** 2 + self.mZ**2 * self.widthZ**2)
+        )
         self.m1m2const = -(
             8
             * self.e**2
@@ -279,15 +283,66 @@ def total_cross_section(energy_range):
         tot_cross_comphep[:, 0],
         tot_cross_comphep[:, 1],
         "r--",
-        label="CompHEP cross_section",
+        label=r"CompHEP $\sigma$",
     )
     # plt.plot(energy_range, cross_section_gamma, label=r"$\sigma_{\gamma}$")
     # plt.plot(energy_range, cross_section_z, label=r"$\sigma_{Z}$")
     plt.legend()
+    plt.yscale("log")
     plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]")
     plt.ylabel(r"Cross section $\sigma$ [pb/rad]")
     plt.title(r"Cross section for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$")
     plt.savefig("../Figures/total_cross_section.pdf")
+    plt.show()
+
+
+def plot_Z_prime():
+    tot_cross_Zp = np.loadtxt("../datasets/Zp_tot_cross.txt", skiprows=3)
+    asym_Zp = np.loadtxt("../datasets/Zp_asym.txt", skiprows=3)
+    diff_cross_Zp = np.loadtxt("../datasets/Zp_diff_cross.txt", skiprows=3)
+
+    y_tot = tot_cross_Zp[:, 1]
+    x_tot = tot_cross_Zp[:, 0]
+
+    plt.plot(
+        x_tot,
+        y_tot,
+        label=r"CompHEP $\sigma$",
+    )
+    plt.scatter(x_tot[2], y_tot[2], color="red",label="Z peak")
+    plt.scatter(x_tot[85], y_tot[85], color="black", label="Z' peak")
+    plt.legend()
+    plt.yscale("log")
+    plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]")
+    plt.ylabel(r"Cross section $\sigma$ [pb/rad]")
+    plt.title(r"Cross section for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$")
+    plt.savefig("../Figures/total_cross_section_Zp.pdf")
+    plt.show()
+
+    plt.plot(
+        asym_Zp[:, 0],
+        asym_Zp[:, 1],
+        label=r"CompHEP asymmetry",
+    )
+    plt.legend()
+    plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]")
+    plt.ylabel(r"Asymmetry")
+    plt.title(r"Asymmetry for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$")
+    plt.savefig("../Figures/asym_Zp.pdf")
+    plt.show()
+
+    plt.plot(
+        diff_cross_Zp[:, 0],
+        diff_cross_Zp[:, 1],
+        label=r"CompHEP $d\sigma/dcos(\theta)$",
+    )
+    plt.legend()
+    plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]")
+    plt.ylabel(r"$\frac{\sigma}{dcos(\theta)}$ [pb/rad]")
+    plt.title(
+        r"Differential cross section for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$"
+    )
+    plt.savefig("../Figures/diff_cross_section_Zp.pdf")
     plt.show()
 
 
@@ -300,14 +355,15 @@ if __name__ == "__main__":
     names = ["bottom", "charm", "electron", "muon"]
     energy_range = np.linspace(10, 200, 200)
 
-    total_cross_section(energy_range)
-    # asymmetry_run(names, energy_range)
-    exit()
-
     # Object for plotting
-    dcs = DiffCrossection(np.linspace(0, np.pi, 1000), 200, "bottom")
-    dcs.compute_momentum_products()
-    dcs.plot_cross()
-    dcs.plot_m2()
+    # dcs = DiffCrossection(np.linspace(0, np.pi, 1000), 200, "bottom")
+    # dcs.compute_momentum_products()
+    # dcs.plot_cross()
+    # dcs.plot_m2()
 
     # Other tasks
+
+    # total_cross_section(energy_range)
+    # asymmetry_run(names, energy_range)
+
+    plot_Z_prime()
