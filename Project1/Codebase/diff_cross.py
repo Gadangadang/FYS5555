@@ -61,7 +61,7 @@ class DiffCrossection:
             * self.e**2
             * self.g**2
             * Q
-            / (self.costhetaW**2 * self.s * (self.s - self.mZ**2))
+            / (self.costhetaW**2 * self.s * (self.s - self.mZ**2 ))
         )
 
         comp_data = np.loadtxt("../datasets/comphep_200GeV.txt", skiprows=3)
@@ -220,7 +220,7 @@ def asymmetry(start, stop, energy_range, particle):
         tot_cross1 = sp.integrate.simps(diff_cross_sec1[: int(N / 2)])
         tot_cross2 = sp.integrate.simps(diff_cross_sec2[int(N / 2) :])
 
-        print(tot_cross1, " ", tot_cross2)
+      
 
         gamma_cross1 = sp.integrate.simps(diff_cross_gamma1[: int(N / 2)])
         gamma_cross2 = sp.integrate.simps(diff_cross_gamma2[int(N / 2) :])
@@ -236,6 +236,8 @@ def asymmetry(start, stop, energy_range, particle):
 
     asym_comphep = np.loadtxt("../datasets/" + particle_data[particle][0], skiprows=3)
 
+    print(asymmetry)
+
     plt.plot(energy_range, asymmetry, label="Total asymmetry")
     plt.plot(asym_comphep[:, 0], asym_comphep[:, 1], "r--", label="CompHEP asymmetry")
     plt.plot(energy_range, asymmetry_gamma, label=r"$\gamma$ asymmetry")
@@ -250,6 +252,8 @@ def asymmetry(start, stop, energy_range, particle):
     )
     plt.savefig("../Figures/asymmetry_comp_" + particle_data[particle][1] + ".pdf")
     plt.show()
+
+    
 
 
 def total_cross_section(energy_range):
@@ -314,7 +318,7 @@ def plot_Z_prime():
     plt.scatter(x_tot[85], y_tot[85], color="black", label="Z' peak")
     plt.legend()
     plt.yscale("log")
-    plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]")
+    plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]") 
     plt.ylabel(r"Cross section $\sigma$ [pb/rad]")
     plt.title(r"Cross section for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$")
     plt.savefig("../Figures/total_cross_section_Zp.pdf")
@@ -338,7 +342,8 @@ def plot_Z_prime():
         label=r"CompHEP $d\sigma/dcos(\theta)$",
     )
     plt.legend()
-    plt.xlabel(r"COM energy $\sqrt{s}$ [GeV]")
+
+    plt.xlabel(r"$\cos{(\theta)}$")
     plt.ylabel(r"$\frac{\sigma}{dcos(\theta)}$ [pb/rad]")
     plt.title(
         r"Differential cross section for $\mu^+\mu^- \to b\bar{b}$ as function of $\sqrt{s}$"
@@ -353,18 +358,18 @@ def asymmetry_run(names, energy_range):
 
 
 if __name__ == "__main__":
-    names = ["bottom", "charm", "electron", "muon"]
+    names = ["bottom", "charm", "electron"]
     energy_range = np.linspace(10, 200, 200)
 
     # Object for plotting
-    dcs = DiffCrossection(np.linspace(0, np.pi, 1000), 200, "bottom")
-    dcs.compute_momentum_products()
-    dcs.plot_cross()
-    dcs.plot_m2()
+    #dcs = DiffCrossection(np.linspace(0, np.pi, 1000), 200, "bottom")
+    #dcs.compute_momentum_products()
+    #dcs.plot_cross()
+    #dcs.plot_m2()
 
     # Other tasks
 
-    # total_cross_section(energy_range)
-    # asymmetry_run(names, energy_range)
+    #total_cross_section(energy_range)
+    #asymmetry_run(names, energy_range)
 
-    #plot_Z_prime()
+    plot_Z_prime()
