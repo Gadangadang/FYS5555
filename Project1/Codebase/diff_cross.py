@@ -369,7 +369,7 @@ if __name__ == "__main__":
 
     # Other tasks
 
-    #total_cross_section(energy_range)
+    total_cross_section(energy_range)
     #asymmetry_run(names, energy_range)
 
-    plot_Z_prime()
+    #plot_Z_prime()
