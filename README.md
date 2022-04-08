@@ -15,3 +15,5 @@ To run the code, first install the requirements. This can be done calling this c
 pip install -r requirements
 
 ```
+Note that to do the calculations in project 2 and 3, you need ROOT, and access to ATLAS Open data. The code in project 2, <br>
+and project 3 has been run on a server at the Insitute of Physics @ UiO.
