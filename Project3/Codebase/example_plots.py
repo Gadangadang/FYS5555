@@ -19,6 +19,8 @@ Outlier = X[new_out]
 
 
 
+
+
 plt.hlines(y = 3, xmin = 0, xmax=1.5)
 
 plt.vlines(x = 1.5, ymin = 3, ymax=5)
@@ -35,9 +37,11 @@ plt.savefig("../figures/correct_class.pdf")
 plt.show()
 
 
-plt.hlines(y = 3, xmin = 3, xmax=4)
+Outlier[:,0] = Outlier[:,0] + 2.5
 
-plt.vlines(x = 3, ymin = 3, ymax=5)
+plt.hlines(y = 3, xmin = 0, xmax=1.5)
+
+plt.vlines(x = 1.5, ymin = 3, ymax=5)
 plt.scatter(Outlier[:,0],Outlier[:,1], color="y", label="Outliers")
 plt.scatter(Inlier[:,0],Inlier[:,1], color="k", label="Inliers")
 plt.ylim(0, 5)
