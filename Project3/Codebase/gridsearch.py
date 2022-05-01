@@ -8,6 +8,7 @@ from sklearn.model_selection import PredefinedSplit
 from tensorflow.keras import optimizers
 import keras_tuner as kt
 from Functions import *
+from Datahandler import DataHandler
 
 # for custom activation function
 from keras import backend as K
@@ -70,18 +71,18 @@ def gridautoencoder(X_b, X_back_test):
 
 
 def AE_model_builder(hp):
-    inputs = tf.keras.layers.Input(shape=30, name="encoder_input")
+    inputs = tf.keras.layers.Input(shape=data_shape, name="encoder_input")
     x = tf.keras.layers.Dense(
-        units=hp.Int("num_of_neurons0", min_value=17, max_value=30, step=1),
+        units=hp.Int("num_of_neurons0", min_value=13, max_value=17, step=1),
         activation=hp.Choice(
             "0_act", ["relu", "tanh", "leakyrelu", "self_val"]),
     )(inputs)
     x1 = tf.keras.layers.Dense(
-        units=hp.Int("num_of_neurons1", min_value=9, max_value=16, step=1),
+        units=hp.Int("num_of_neurons1", min_value=7, max_value=12, step=1),
         activation=hp.Choice(
             "1_act", ["relu", "tanh", "leakyrelu", "self_val"]),
     )(x)
-    val = hp.Int("lat_num", min_value=1, max_value=8, step=1)
+    val = hp.Int("lat_num", min_value=1, max_value=6, step=1)
     x2 = tf.keras.layers.Dense(
         units=val, activation=hp.Choice(
             "2_act", ["relu", "tanh", "leakyrelu", "self_val"])
@@ -90,17 +91,17 @@ def AE_model_builder(hp):
 
     latent_input = tf.keras.layers.Input(shape=val, name="decoder_input")
     x = tf.keras.layers.Dense(
-        units=hp.Int("num_of_neurons5", min_value=9, max_value=16, step=1),
+        units=hp.Int("num_of_neurons5", min_value=7, max_value=12, step=1),
         activation=hp.Choice(
             "5_act", ["relu", "tanh", "leakyrelu", "self_val"]),
     )(latent_input)
     x1 = tf.keras.layers.Dense(
-        units=hp.Int("num_of_neurons6", min_value=17, max_value=30, step=1),
+        units=hp.Int("num_of_neurons6", min_value=13, max_value=17, step=1),
         activation=hp.Choice(
             "6_act", ["relu", "tanh", "leakyrelu", "self_val"]),
     )(x)
     output = tf.keras.layers.Dense(
-        30, activation=hp.Choice("7_act", ["relu", "tanh", "leakyrelu", "sigmoid", "self_val"])
+        data_shape, activation=hp.Choice("7_act", ["relu", "tanh", "leakyrelu", "sigmoid", "self_val"])
     )(x1)
     decoder = tf.keras.Model(latent_input, output, name="decoder")
 
@@ -117,9 +118,16 @@ def AE_model_builder(hp):
 
 if __name__ == "__main__":
     seed = tf.random.set_seed(1)
+    
+    mc_data = "../data/mctest.csv"
+    test_data = "../data/datatest.csv"
 
+    DH = DataHandler(mc_data, test_data)
     #Read inn training data 
     
+    X_back, X_test_val = DH()
+    
+    data_shape = np.shape(X_back)[1]
+    
     with tf.device("/CPU:0"):
-        # gridNN()
-        gridautoencoder(X_b, X_back_test)
+        gridautoencoder(X_back, X_test_val)
