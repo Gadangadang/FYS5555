@@ -28,9 +28,9 @@ columns = {"met":[], "XSection":[],
 
 for i in range(n):
     
-    columns["met"].append(np.mean(a))
+    columns["met"].append(np.sum(a))
    
-    columns["XSection"].append(np.mean(a))  
+    columns["XSection"].append(np.sum(a))  
     ### Lep information
     columns["lep_n"].append
     columns["tot_lep_invariant_mass"].append(np.mean(a))
@@ -85,3 +85,9 @@ for i in range(n):
     ### Systematic uncertainty for gauranteed placeholders
     columns["mean_lep_pt_syst"].append(np.mean(a))
     columns["met_et_syst"].append(np.mean(a))
+
+
+
+
+
+    
