@@ -2,12 +2,14 @@ import pandas as pd
 import numpy as np
 
 class DataHandler:
-    def __init__(self, mc_data_file, test_data_file): 
+    def __init__(self, mc_data_file, test_data_file=None): 
         df_mc = pd.read_csv(mc_data_file)
-        df_test = pd.read_csv(test_data_file)
+        if isinstance(test_data_file, str):
+            df_test = pd.read_csv(test_data_file)
+            self.test_data = df_test.to_numpy()
         
         self.mc_data = df_mc.to_numpy()
-        self.test_data = df_test.to_numpy()
+        
         
         #rng = np.random.default_rng()
         #self.mc_data = rng.shuffle(self.mc_data)

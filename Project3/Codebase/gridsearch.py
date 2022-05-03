@@ -34,7 +34,7 @@ def gridautoencoder(X_b, X_back_test):
         overwrite=True,
     )
 
-    tuner.search(X_b, X_b, epochs=50, batch_size=4000,
+    tuner.search(X_b, X_b, epochs=50, batch_size=40000,
                  validation_data=(X_back_test, X_back_test))
     timer(start_time)
     best_hps = tuner.get_best_hyperparameters(num_trials=1)[0]
@@ -119,10 +119,10 @@ def AE_model_builder(hp):
 if __name__ == "__main__":
     seed = tf.random.set_seed(1)
     
-    mc_data = "../data/mctest.csv"
-    test_data = "../data/datatest.csv"
+    mc_data = "../data/mcdata.csv"
+    #test_data = "../data/datatest.csv"
 
-    DH = DataHandler(mc_data, test_data)
+    DH = DataHandler(mc_data)
     #Read inn training data 
     
     X_back, X_test_val = DH()
