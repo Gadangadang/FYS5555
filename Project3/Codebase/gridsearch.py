@@ -131,3 +131,5 @@ if __name__ == "__main__":
     
     with tf.device("/CPU:0"):
         gridautoencoder(X_back, X_test_val)
+
+
