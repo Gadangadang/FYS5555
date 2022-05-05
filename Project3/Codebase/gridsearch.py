@@ -52,7 +52,7 @@ def gridautoencoder(X_b, X_back_test):
     Second layer has {best_hps.get('num_of_neurons6')} with activation {best_hps.get('6_act')}\n
     Third layer has activation {best_hps.get('7_act')}\n
     \n
-    with learning rate = {best_hps.get('learning_rate')}
+    with learning rate = {best_hps.get('learning_rate')} and alpha = {best_hps.get('alpha')}
     """
     )
 
@@ -71,21 +71,23 @@ def gridautoencoder(X_b, X_back_test):
 
 
 def AE_model_builder(hp):
+    alpha_choice = hp.Choice("alpha", values=[1, 0.5, 0.1, 0.05, 0.01])
+    
     inputs = tf.keras.layers.Input(shape=data_shape, name="encoder_input")
     x = tf.keras.layers.Dense(
         units=hp.Int("num_of_neurons0", min_value=13, max_value=17, step=1),
         activation=hp.Choice(
-            "0_act", ["relu", "tanh", "leakyrelu", "self_val"]),
+            "0_act", ["relu", "tanh", tf.keras.layers.LeakyReLU(alpha=alpha_choice), "self_val"]),
     )(inputs)
     x1 = tf.keras.layers.Dense(
         units=hp.Int("num_of_neurons1", min_value=7, max_value=12, step=1),
         activation=hp.Choice(
-            "1_act", ["relu", "tanh", "leakyrelu", "self_val"]),
+            "1_act", ["relu", "tanh", tf.keras.layers.LeakyReLU(alpha=alpha_choice), "self_val"]),
     )(x)
     val = hp.Int("lat_num", min_value=1, max_value=6, step=1)
     x2 = tf.keras.layers.Dense(
         units=val, activation=hp.Choice(
-            "2_act", ["relu", "tanh", "leakyrelu", "self_val"])
+            "2_act", ["relu", "tanh", tf.keras.layers.LeakyReLU(alpha=alpha_choice), "self_val"])
     )(x1)
     encoder = tf.keras.Model(inputs, x2, name="encoder")
 
@@ -93,15 +95,15 @@ def AE_model_builder(hp):
     x = tf.keras.layers.Dense(
         units=hp.Int("num_of_neurons5", min_value=7, max_value=12, step=1),
         activation=hp.Choice(
-            "5_act", ["relu", "tanh", "leakyrelu", "self_val"]),
+            "5_act", ["relu", "tanh", tf.keras.layers.LeakyReLU(alpha=alpha_choice), "self_val"]),
     )(latent_input)
     x1 = tf.keras.layers.Dense(
         units=hp.Int("num_of_neurons6", min_value=13, max_value=17, step=1),
         activation=hp.Choice(
-            "6_act", ["relu", "tanh", "leakyrelu", "self_val"]),
+            "6_act", ["relu", "tanh", tf.keras.layers.LeakyReLU(alpha=alpha_choice), "self_val"]),
     )(x)
     output = tf.keras.layers.Dense(
-        data_shape, activation=hp.Choice("7_act", ["relu", "tanh", "leakyrelu", "sigmoid", "self_val"])
+        data_shape, activation=hp.Choice("7_act", ["relu", "tanh", tf.keras.layers.LeakyReLU(alpha=alpha_choice), "sigmoid", "self_val"])
     )(x1)
     decoder = tf.keras.Model(latent_input, output, name="decoder")
 
