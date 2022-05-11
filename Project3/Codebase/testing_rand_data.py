@@ -26,8 +26,6 @@ get_custom_objects().update(
 
 data = np.random.randn(int(1e6), 36)
 
-print(data)
-
 
 model = tf.keras.models.load_model(f"../tf_models/1_epoch_trained_big_wreg.h5", compile=True)
 
