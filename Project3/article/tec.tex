@@ -1,0 +1,372 @@
+% For instructions, 
+\documentclass[ reprint, amsmath,amssymb, aps, nofootinbib]{revtex4-2}
+\usepackage[T1]{fontenc} %for å bruke æøå
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx} %for å inkludere grafikk
+\usepackage{verbatim} %for å inkludere filer med tegn LaTeX ikke liker
+\usepackage{mathpazo}
+\usepackage{amsfonts,amsthm}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{float}
+\usepackage[english]{babel}
+\usepackage{listings}
+\usepackage[style=numeric]{biblatex}
+\usepackage[noend]{algpseudocode}
+%\usepackage[style=numeric]{biblatex}
+%\usepackage{comment}
+\addbibresource{Reference.bib}
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage[flushleft]{threeparttable}
+\usepackage{array,booktabs,makecell}
+\usepackage{multirow}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{subcaption}
+%\usepackage{algorithm2e}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+\usepackage{siunitx}
+\usepackage{mathtools}
+\usepackage{abstract}
+%\usepackage{tocloft}
+%\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}} 
+\usepackage{hyperref}
+\usepackage{tikz} 
+\usetikzlibrary{shapes,arrows,positioning,automata,backgrounds,calc,er,patterns}
+\usepackage{tikz-feynman}
+\tikzfeynmanset{compat=1.0.0}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\usepackage{float}
+\newcommand{\subtitle}[1]{%
+  \posttitle{%
+    \par\end{center}
+    \begin{center}\large#1\end{center}
+    \vskip0.5em}%
+}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\urlstyle{same}
+
+
+\renewcommand{\vec}[1]{\mathbf{#1}} % \vec gives bold text instead of arrow
+\DeclareMathOperator*{\E}{\mathbb{E}}
+
+
+\begin{document}
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+
+%{\Large Higgs boson classification using multiple classification methods}
+{\Large\bfseries Deployment of unsupervised learning in a search for new physics with ATLAS Open Data}
+
+\vspace{1cm}
+{\Large Testing of auto encoder for semi unsupervised learning}
+
+\vspace{1cm}
+{\large Sakarias Frette}
+
+\vspace{1cm}
+{\bfseries Spring 2022}
+\vspace{0.5cm}
+
+\begin{center}
+\begin{abstract}
+
+\end{abstract}
+\end{center}
+\vspace{2.5cm}
+
+{\itshape University of Oslo}
+\end{titlepage}
+\clearpage
+\newpage
+\mbox{~}
+\clearpage
+\newpage
+\onecolumngrid
+
+\tableofcontents
+
+\newpage
+
+
+\twocolumngrid
+\section{Introduction}
+The standard model is arguably the best model ever created by man, showing remarkable accuracy comparing with experiments. Its crown jewel was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS colaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS colaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new particle discoveries since the early 70's, and this is somewhat alarming. The standard model has several issues, some of them includes explanation of dark energy, cosmic inflation, the hierarchy problem and no including of gravity. \par 
+This leads scientists to look beyond the standard model, and there are several models proposed, such as dark matter candidates, extra vector bosons and super symmetry. Attempts are made by multiple collaborations to discover evidence for these models, and there are several obstacles to overcome, such as method of analysis and sufficient amount of data. With the impressive progress of machine learning software such as Tensorflow\cite{tensorflow2015-whitepaper}, machine learning methods have become more and more popular as possible methods  to use for new physics. \par 
+In the last decade machine learning has excelled from being tedious and hard to program to become available to almost everyone. It's scale-ability and ability to discover hidden structure in large datasets makes it an intriguing candidate to use on data from the Large Hadron Collider. One possible candidate is semi unsupervised learning, which is done by an auto encoder. The idea is to train a model-independent algorithm on only background, with the hope that what ever new physics that is in the data is detected, without knowing what it is.  This machine learning model is the method of choice for this report. \par
+\\
+This report is structured in a theory, implementation, results and discussion, and conclusion section. In the theory section we introduce the necessary theory, with respect to both data, method of analysis and choice of evaluation. In the implementation section we discuss data handling , with respect to cuts, event selection, scaling and feature choices, choice of hyper parameters for grid search and the software and api's used for training and tuning. In the results and discussion section we display the results and discuss them as as well as distinct observations. In the conclusion we summarize our findings. 
+
+\newpage
+\section{Theory}
+Some of theory sections about anomaly detection and machine learning algorithms are based on previous work done in other courses, such as \cite{FYSSTK} and \cite{ML_PROJ}.
+
+\subsection{Anomaly detection}
+
+Anomaly detection is a tool with a wide range of uses, from time series data, fraud detection or anomalous sensor data. Its main purpose is to detect data which does not conform to some predetermined standard for normal behavior. The predetermined standard varies from situation to situation, and can be set by the context it self, and what is expected as an anomaly. We typically classify anomalies in three categories\cite{anom_detec}:
+\begin{enumerate}
+    \item Point anomalies
+    \item Contextual anomalies
+    \item Collective anomalies
+\end{enumerate}
+
+For the purpose of this report we will mostly consider collective anomalies, as anomalies in the standard model has to be collective to claim anything due to noise etc. \par 
+
+In high energy physics we can, using machine learning, separate anomaly detection into two categories, supervised and unsupervised searches. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{figures/theory/correct_class.pdf}
+    \caption{Example of supervised classification of anomaly where the target model is correct. Here the machine learning model manages to correctly identify the anomalies. }
+    \label{fig:corr_class}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{figures/theory/wrong_class.pdf}
+    \caption{Example of supervised classification of anomaly where the target model is wrong. Here the machine learning model manages to wrongly identify the anomalies. }
+    \label{fig:wrong_class}
+\end{figure}
+
+In figure \ref{fig:corr_class} we see an example of supervised classification. Because the model trained to recognize certain anomalies that are in the data set in manages very well to classify them. In figure \ref{fig:wrong_class} we do however see that the same model does not find any anomalies, as they are completely different from the ones it trained on. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.49\textwidth]{figures/theory/unsuper.pdf}
+    \caption{Example of unsupervised classification of anomaly with no target model. Here the machine learning model manages to with good precision identify the anomalies. }
+    \label{fig:unsup_class}
+\end{figure}
+
+In figure \ref{fig:unsup_class} we have an example of unsupervised learning. Here we do not tell what is anomalies and what is background. Note that the unsupervised classifier does not classify correctly every anomaly, and the grade of which it does vary from model to model, and from dataset to dataset. 
+
+\subsection{Beyond standard model physics}
+
+In the context of high energy physics, both supervised and unsupervised methods are tried continuously in the search for new physics. The methods have their strengths and weaknesses, and should be deployed with this in mind. A supervised model will always be better to classify and separate distribution of background and signal events, and if the signal actually exists in the data from the detector, it will give better accuracy than any (semi-) unsupervised methods. \par 
+In the event that some signal actually exist in the data from the detector that we do not have a model for, a supervised model will not be able to recognize it purely as a signal, whilst the unsupervised might claim that there is something other than SM background. The certainty of the results will very with different models, but in the case of an auto encoder, this is due to the fact that it will only recognize background events that is has trained on, and not any new physics. The drawback with using unsupervised methods in high energy physics, or other fields with multiple anomaly candidates, is that you cannot know what the signal is, only that is it not background. \par 
+
+
+
+\subsection{Stacked auto encoder}
+One method to attack the anomaly detection problem is the so called (stacked) auto encoder. The idea is based on reconstruction, and has been implemented for denoising of images, image compression, and anomaly detection. An auto encoder is a subgroup of feed forward neural networks, and the goal is to compress the information into fewer variables, called the latent space, which then can explain much of the data through decoding that information. This allows the algorithm to learn the most important components of the data. An illustrative image of an auto encoder is shown below. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.49\textwidth]{figures/theory/autoencoder-architecture.png}
+    \caption{The architecture of an autoencoder with image reconstruction as the example use. \href{https://lilianweng.github.io/posts/2018-08-12-vae/}{Source}, accessed 28.04.22}
+    \label{fig:auto_en_archi}
+\end{figure}
+
+We see here in figure \ref{fig:auto_en_archi} that the input data is deconstructed through an encoder to a lower dimensional space called the latent space, depicted here as \textbf{z}, and then reconstructs the data with the decoder. It is important to note that the number of layers, nodes per layer and activation function per layer for the encoder does not need to match the structure of the decoder. The only requirement is that the input and output layer has the same shape. The end result is the reconstructed data \textbf{x'}. The training of the model is parameterized in the following way. We define the decoder as 
+
+\begin{equation*}
+    \textbf{z} = g_{\xi}(\bf{x}),
+\end{equation*}
+and the reconstructed information as 
+\begin{equation*}
+    \textbf{x'} = f_{\theta}(g_{\xi}(\bf{x})),
+\end{equation*}
+
+where the parameters $(\xi, \theta)$ are tuned to reconstruct the data as close to the original data as possible. The model then adjusts following the simple mean squared error of the reconstruction and the actual data, given below
+
+\begin{equation*}
+    L_{AE}(\xi, \phi)= \frac{1}{N} \sum_{i=0}^{N-1}\bigg( \textbf{x}^i - f_{\theta}(g_{\xi}(\textbf{x}^i))\bigg)^2
+\end{equation*}
+
+
+
+\section{Implementation}
+
+\subsection{Handling of data}
+
+In appendix \ref{appendix:features} the features used in the data set are listed, with their respective type and description. The data can be seperated into two categories, Monte Carlo simulated (MC) data and actual data. The MC data contain background samples which are standard model processes, and signal samples which are proposed new physics. The actual data is data from the ATLAS detector. The totality of the data used in this report is given as ATLAS OpenData\footnote{Link to ATLAS OpenData \href{https://atlas.cern/resources/opendata}{here}.}. This is a dataset that has been analyzed for new physics, and can thus be released to the public. 
+
+\subsubsection{Cuts, pre-selection and scaling}
+To preserve as much information and add as little bias as possible we did as few cuts as possible. The entire data gathering process is biased from the moment the data is collected at the collider, but even then it is good to try to minimize the bias. \par
+The first cut we impose is to require "good leptons". This is done by requiring lep\_etcone$20/$lep\_pt $< 0.15$ and lep\_ptcone$30/$lep\_pt $< 0.15$. We then require only two leptons per event. The event selection was done using RDataframe, to speed up the selection\footnote{This code was written by Eirik Gramstad, and can be found \href{https://github.uio.no/zpath/software/blob/eirik-dev/Notebooks/ATLASOpenData/13TeV/RDataFrameToDF.ipynb}{here}.}\par 
+We tested two methods of scaling in this report, Min Max Scaling\footnote{More on Min max scaling \href{https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html}{here}.} and Standard scaling\footnote{More on Standard scaling \href{https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html}{here}.}\cite{scikit-learn}.
+
+\subsubsection{Choice of features}
+The choice of features is a mixture of specification and broadness. In this context specification is defined as information that specify for a given part of the physical system, in this case leptons. Thus, most of the features are directly related to the leptons, as they are the main focus of the BSM final states. Broadness is in this context defined as information about the rest part of the final state, such as jets, photons or tau leptons. Ideally one would pick as much information as possible for each event, but there is a trade-off between amount of information and size of data, and as consequence, execution time. \par 
+The features were picked such that there are no missing values, only 0 or larger than 0. For regular machine learning problems, missing values usually gets replaced by the mean value of the feature. This is however a problem when analysing physics, as such a choice could violate the laws of physics. To avoid this, all features are designed to either have 0 if missing, or sum up the contributions of both missing and present values, given that they represent the same type of information. \par 
+An example of this is if we have two jets in one event and three in another, using the transverse momentum of the jets as features. We cannot in the first event input the mean values of all third jet-transverse momentum in the entire dataset, but we could put 0, or sum all the transverse momentum for the jets in the given event into one feature. Another possibility is to only give the count of jets in the event, and there are even more ways to solve this issue. 
+
+
+
+ 
+
+\subsection{Tuning and training}
+For the auto encoder to accurately distinguish background from signal, the model needs to train on the background data. However, neural networks are highly susceptible to hyperparameters, which needs tuning. In this project we used Keras-tuner\cite{omalley2019kerastuner} to tune the hyperparameters. The hyperparameters used in the network are the learning rate, the alpha parameter for the LeakyReLU\footnote{More on the LeakyReLU api can be found \href{https://www.tensorflow.org/api_docs/python/tf/keras/layers/LeakyReLU}{here}.} activation function, the activation function for each layer, the amount of nodes per layer and regularization for layer's kernel and output and . The activation functions used in the hyperparameter grid search where
+\begin{itemize}
+    \item ReLU
+    \item LeakyReLU
+    \item tanh
+    \item linear
+\end{itemize}
+whilst the different learning rates that was tested was $[9\cdot 10^{-2}, 9.5\cdot 10^{-2}, 10^{-3}, 1.5\cdot 10^{-3}]$, and the kernel and output regularization constant values were $[0.5, 0.1, 0.05, 0.01]$
+\par 
+The auto encoder was written using Tensorflow api\cite{tensorflow2015-whitepaper}\cite{chollet2015keras}, using a functional structure\footnote{More on the functional api can be found \href{https://www.tensorflow.org/guide/keras/functional}{here}.}. In practise, this model could just as well have been written as a Sequential model\footnote{More on sequential models can be found \href{https://www.tensorflow.org/guide/keras/sequential_model}{here}.}, but at a cost of flexibility and lack of potential non-linear structure in the architecture. 
+
+
+\newpage
+\section{Results and Discussion}
+
+\subsection{Architecture}
+The first auto encoder model was found with a grid search and is structured as shown in figure \ref{fig:big_ae_plot} below. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_big.pdf}
+    \caption{Auto encoder architecture after grid search. }
+    \label{fig:big_ae_plot}
+\end{figure}
+The grid search gave the optimal hyper parameters as follows: the encoder has the following activation functions BLANK, BLANK AND BLANK, and the decoder has the following activation functions BLANK, BLANK, BLANK and BLANK. The optimal learning rate was BLANK, the optimal kernel regularizer was BLANK, and the optimal activity regularizer was BLANK. \par This model appeared to struggle with reconstruction of ATLAS data, which lead to tests with a smaller auto encoder, use of dropout, initialization of weights and removal of certain features. The following figures show the architecture for the other models. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_small.pdf}
+    \caption{Small auto encoder architecture after grid search. }
+    \label{fig:small_ae_plot}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_drop_initweight.pdf}
+    \caption{Big auto encoder architecture after grid search, using random uniform distribution as initialization of weights on all layers and dropout between certain layers}
+    \label{fig:big_ae_plot_init_drop}
+\end{figure}
+
+
+\subsection{Semi unsupervised}
+
+Using the hyperparameters from the gridsearch, a prediction on background MC, signal MC and ATLAS data was made after training on 80\% of the background MC. REMEMBER THAT BECAUSE OF LARGE DATA AND ONLY CPU THE ALGORITHM ONLY TRAINED 1 EPOCH PER THE FIGURES BELOW!!! 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big.pdf}
+    \caption{Log Log plot of reconstruction error of background and signal MC for big auto encoder}
+    \label{fig:s_b_big_pred}
+\end{figure}
+
+In figure \ref{fig:s_b_big_pred} we have the reconstruction error of background and signal MC in a log log plot. The error shows the same trend for both datasets, and thus has not been able to clearly separate them as something different. This is indicative of a poor classifier.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big.pdf}
+    \caption{Log Log plot of reconstruction error of background MC and ATLAS Data for big auto encoder}
+    \label{fig:data_b_big_pred}
+\end{figure}
+
+In figure \ref{fig:data_b_big_pred} we have the reconstruction error for background MC and ATLAS data in a log log plot. The error displays two separate but close distributions. We also use normalized datapoints in the plot, thus the actual distributions have alot of background and some ATLAS data in the left distributions while the opposite in the right distributions. This is not ideal, as the classifier, with figure \ref{fig:s_b_big_pred} in mind, has learned not learned anything useful other than to somewhat copy the input. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_small.pdf}
+    \caption{Log Log plot of reconstruction error of background and signal MC for small auto encoder}
+    \label{fig:s_b_small_pred}
+\end{figure}
+In figure \ref{fig:s_b_small_pred} we have the reconstruction error for background and signal MC in a log log plot. Here we observe the same same trends as as for the larger auto encoder, indicative of poor performance of the auto encoder.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_small.pdf}
+    \caption{Log Log plot of reconstruction error of background MC and ATLAS Data for small auto encoder}
+    \label{fig:data_b_small_pred}
+\end{figure}
+
+In figure \ref{fig:data_b_small_pred} we see that the classifier reconstructs both the ATLAS data and the background MC with the same trend, which means one of two things. Either the classifier just learning the identity function and copies what is put in and gives it out after, or it has manages to learn to reconstruct the standard model. 
+
+
+\begin{itemize}
+    \item Difference between broad and narrow search
+    \item Bias 
+    \item bias with features to choose
+    \item difference of how well the model detects different signal models in mc data signals
+    \item any interesting in actual data?
+    \item difference in scaling
+    \item tuning effect
+    \item optimizing tensorflow code with use of autoclustering and possibly mixing floating point precision. 
+    \item the use of roc curves, and the validity of what they say
+\end{itemize}
+
+
+\section{Conclusion}
+
+\clearpage
+\newpage
+\mbox{~}
+\onecolumngrid
+\printbibliography
+
+\newpage
+\appendix
+\section{Features}\label{appendix:features}
+% Define new columns types 
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % left fixed width
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % center fixed width
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % flush right fixed width
+\begin{table}[H]
+    % \setlength{\tabcolsep}{15pt}
+    \renewcommand{\arraystretch}{1.3}
+    \begin{center}
+    \caption{Features and their description \cite{ATL-OREACH-PUB-2020-001}}
+    \begin{tabular}{|C{4.5cm}|C{4.5cm}|L{9.5cm}|} \hline
+    
+    Feature & Type & Description \\ \hline
+    njet20 & int & Number of jets with $p_T > 20$ GeV\\ \hline
+    njet60 & int & Number of jets with $p_T > 60$ GeV  \\ \hline
+    nbjet60 & int & Number of b-jets with $p_T > 60$ GeV  \\ \hline
+    nbjet70 & int & Number of b-jets with   \\ \hline
+    nbjet77 & int & Number of b-jets with   \\ \hline
+    nbjet85 & int & Number of b-jets with   \\ \hline
+    isOS  & int & 1 if leptons have opposite charge, 0 if leptons have same charge \\ \hline
+    isSF & int & 1 if leptons are of same flavor, 0 is leptons are of different flavor, flavor code 11 is electron, flavor code 13 is muon \\ \hline
+    mll & float & Invariant mass of the two leptons \\ \hline
+    mt2 & float & The maximal lower bound on the mass of each member of a
+    pair of identical parent particles which, if pairproduced at a hadron collider, could have each
+    undergone a two-body decay into (i) a visible
+    particle (or collection of particles) and (ii) an
+    invisible object of hypothesised mass $\chi$\cite{Lester_2011}.\\ \hline
+    met\_et & float & Transverse energy of the missing momentum vector \\ \hline
+    met\_phi & float & Azimuthal angle of the missing momentum vector\\ \hline
+    lep\_flav & vector<int> & Flavor of the lepton, 11 for electron and 13 for muon \\ \hline
+    lep\_pt & vector<float> & Vector containing transverse momentum for the leptons \\ \hline
+    lep\_eta & vector<float> & Vector containing pseudo-rapidity , $\eta$, for the leptons \\ \hline
+    lep\_phi & vector<float> & Vector containing azimuthal angle, $\phi$, for the leptons \\ \hline
+    lep\_E & vector<float> & Vector containing the energy for the leptons \\ \hline
+    lep\_ptcone30 & vector<float>  & Vector containing scalar sum of track $p_T$ in a cone of $R=0.3$ around lepton, used for tracking isolation \\ \hline
+    lep\_etcone20 & vector<float>  & Vector containing scalar sum of track $E_T$ in a cone of $R=0.2$ around lepton, used for calorimeter isolation \\ \hline
+    lep\_trackd0pvunbiased  & vector<float> & $d_0$ of track associated to lepton at point of closest approach (p.c.a.)\\ \hline
+    lep\_tracksigd0pvunbiased & vector<float> & $d_0$ significance of the track associated to lepton at the p.c.a.\\ \hline
+    lep\_isTightID & vector<bool> & Vector containing boolean indicating whether leptons satisfies tight ID reconstruction criteria\\ \hline
+    lep\_z0 & vector<float> & Vector containing z-coordinate of the track associated for the leptons wrt. primary vertex \\ \hline
+    
+    channelNumber & int & Data sample ID\\\hline
+    costhstar & float & Cosine of dilepton decay angle\\ \hline
+    weight & float & MC sample weight \\ \hline
+    category & string & SM or BSM category \\ \hline
+    physdescr & string & MC process name \\ \hline
+    isSignal & int & 1 if category is a BSM signal, 0 if the category is SM background \\ \hline
+            
+    \end{tabular}
+    \label{tab:feature_table}
+  \end{center}
+\end{table}
+
+
+
+\end{document}
