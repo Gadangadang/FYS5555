@@ -106,7 +106,7 @@
 
 \twocolumngrid
 \section{Introduction}
-The standard model is arguably the best model ever created by man, showing remarkable accuracy comparing with experiments. Its crown jewel was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS colaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS colaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new particle discoveries since the early 70's, and this is somewhat alarming. The standard model has several issues, some of them includes explanation of dark energy, cosmic inflation, the hierarchy problem and no including of gravity. \par 
+The standard model is arguably the best model ever created by man, showing remarkable accuracy comparing with experiments. Its crown jewel was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS collaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS collaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new particle discoveries since the early 70's, and this is somewhat alarming. The standard model has several issues, some of them includes explanation of dark energy, cosmic inflation, the hierarchy problem and no including of gravity. \par 
 This leads scientists to look beyond the standard model, and there are several models proposed, such as dark matter candidates, extra vector bosons and super symmetry. Attempts are made by multiple collaborations to discover evidence for these models, and there are several obstacles to overcome, such as method of analysis and sufficient amount of data. With the impressive progress of machine learning software such as Tensorflow\cite{tensorflow2015-whitepaper}, machine learning methods have become more and more popular as possible methods  to use for new physics. \par 
 In the last decade machine learning has excelled from being tedious and hard to program to become available to almost everyone. It's scale-ability and ability to discover hidden structure in large datasets makes it an intriguing candidate to use on data from the Large Hadron Collider. One possible candidate is semi unsupervised learning, which is done by an auto encoder. The idea is to train a model-independent algorithm on only background, with the hope that what ever new physics that is in the data is detected, without knowing what it is.  This machine learning model is the method of choice for this report. \par
 \\
@@ -157,7 +157,7 @@ In figure \ref{fig:unsup_class} we have an example of unsupervised learning. Her
 \subsection{Beyond standard model physics}
 
 In the context of high energy physics, both supervised and unsupervised methods are tried continuously in the search for new physics. The methods have their strengths and weaknesses, and should be deployed with this in mind. A supervised model will always be better to classify and separate distribution of background and signal events, and if the signal actually exists in the data from the detector, it will give better accuracy than any (semi-) unsupervised methods. \par 
-In the event that some signal actually exist in the data from the detector that we do not have a model for, a supervised model will not be able to recognize it purely as a signal, whilst the unsupervised might claim that there is something other than SM background. The certainty of the results will very with different models, but in the case of an auto encoder, this is due to the fact that it will only recognize background events that is has trained on, and not any new physics. The drawback with using unsupervised methods in high energy physics, or other fields with multiple anomaly candidates, is that you cannot know what the signal is, only that is it not background. \par 
+In the event that some signal actually exist in the data from the detector that we do not have a model for, a supervised model will not be able to recognize it purely as a signal, whilst the unsupervised might claim that there is something other than SM background. The certainty of the results will vary with different models, but in the case of an auto encoder, this is due to the fact that it will only recognize background events that is has trained on, and not any new physics. The drawback with using unsupervised methods in high energy physics, or other fields with multiple anomaly candidates, is that you cannot know what the signal is, only that is it not background. \par 
 
 
 
@@ -193,15 +193,15 @@ where the parameters $(\xi, \theta)$ are tuned to reconstruct the data as close 
 
 \subsection{Handling of data}
 
-In appendix \ref{appendix:features} the features used in the data set are listed, with their respective type and description. The data can be seperated into two categories, Monte Carlo simulated (MC) data and actual data. The MC data contain background samples which are standard model processes, and signal samples which are proposed new physics. The actual data is data from the ATLAS detector. The totality of the data used in this report is given as ATLAS OpenData\footnote{Link to ATLAS OpenData \href{https://atlas.cern/resources/opendata}{here}.}. This is a dataset that has been analyzed for new physics, and can thus be released to the public. 
+In appendix \ref{appendix:features} the features used in the data set are listed, with their respective type and description. The data can be separated into two categories, Monte Carlo simulated (MC) data and actual data from a detector. The MC data contain background samples which are standard model processes, and signal samples which are proposed new physics. The actual data is data from the ATLAS detector. The totality of the data used in this report is given as ATLAS Open Data\footnote{Link to ATLAS Open Data \href{https://atlas.cern/resources/opendata}{here}.}. This is a dataset that has been analyzed for new physics, and can thus be released to the public. 
 
 \subsubsection{Cuts, pre-selection and scaling}
-To preserve as much information and add as little bias as possible we did as few cuts as possible. The entire data gathering process is biased from the moment the data is collected at the collider, but even then it is good to try to minimize the bias. \par
+To preserve as much information and add as little bias as possible we did very few cuts. The entire data gathering process is biased from the moment the data is collected at the collider, but even then it is good to try to minimize the bias. \par
 The first cut we impose is to require "good leptons". This is done by requiring lep\_etcone$20/$lep\_pt $< 0.15$ and lep\_ptcone$30/$lep\_pt $< 0.15$. We then require only two leptons per event. The event selection was done using RDataframe, to speed up the selection\footnote{This code was written by Eirik Gramstad, and can be found \href{https://github.uio.no/zpath/software/blob/eirik-dev/Notebooks/ATLASOpenData/13TeV/RDataFrameToDF.ipynb}{here}.}\par 
 We tested two methods of scaling in this report, Min Max Scaling\footnote{More on Min max scaling \href{https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html}{here}.} and Standard scaling\footnote{More on Standard scaling \href{https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.StandardScaler.html}{here}.}\cite{scikit-learn}.
 
 \subsubsection{Choice of features}
-The choice of features is a mixture of specification and broadness. In this context specification is defined as information that specify for a given part of the physical system, in this case leptons. Thus, most of the features are directly related to the leptons, as they are the main focus of the BSM final states. Broadness is in this context defined as information about the rest part of the final state, such as jets, photons or tau leptons. Ideally one would pick as much information as possible for each event, but there is a trade-off between amount of information and size of data, and as consequence, execution time. \par 
+The choice of features is a mixture of specification and broadness. In this context specification is defined as information that specify for a given part of the physical system, in this case leptons. Thus, most of the features are directly related to the leptons, as they are the easiest to detect\footnote{Hadjiiska, Roumyana, 2015. \href{https://indico.cern.ch/event/464777/contributions/1971633/attachments/1197560/1742904/cmsDetector_detectParticles.pdf}{How CMS detects particles}.}. Broadness is in this context defined as information about the rest part of the final state, such as jets, photons or tau leptons. Ideally one would pick as much information as possible for each event, but there is a trade-off between amount of information and size of data, and as consequence, execution time. \par 
 The features were picked such that there are no missing values, only 0 or larger than 0. For regular machine learning problems, missing values usually gets replaced by the mean value of the feature. This is however a problem when analysing physics, as such a choice could violate the laws of physics. To avoid this, all features are designed to either have 0 if missing, or sum up the contributions of both missing and present values, given that they represent the same type of information. \par 
 An example of this is if we have two jets in one event and three in another, using the transverse momentum of the jets as features. We cannot in the first event input the mean values of all third jet-transverse momentum in the entire dataset, but we could put 0, or sum all the transverse momentum for the jets in the given event into one feature. Another possibility is to only give the count of jets in the event, and there are even more ways to solve this issue. 
 
@@ -210,86 +210,116 @@ An example of this is if we have two jets in one event and three in another, usi
  
 
 \subsection{Tuning and training}
-For the auto encoder to accurately distinguish background from signal, the model needs to train on the background data. However, neural networks are highly susceptible to hyperparameters, which needs tuning. In this project we used Keras-tuner\cite{omalley2019kerastuner} to tune the hyperparameters. The hyperparameters used in the network are the learning rate, the alpha parameter for the LeakyReLU\footnote{More on the LeakyReLU api can be found \href{https://www.tensorflow.org/api_docs/python/tf/keras/layers/LeakyReLU}{here}.} activation function, the activation function for each layer, the amount of nodes per layer and regularization for layer's kernel and output and . The activation functions used in the hyperparameter grid search where
+For the auto encoder to accurately reconstruct the standard model, the model needs to train on the background MC. However, neural networks are highly susceptible to hyperparameters, which needs tuning. In this project we used Keras-tuner\cite{omalley2019kerastuner} to tune the hyperparameters. The choice of tuner for this report was Hyperband\cite{JMLR:v18:16-558}. It is not well understood how the hyperparameters interact with each other to affect the result, thus there are really no guidelines for approaching this problem. A result of this might be that the choice of hyperparameters seem completely random or strange. The hyperparameters used in the network are the learning rate, the alpha parameter for the LeakyReLU\footnote{More on the LeakyReLU api can be found \href{https://www.tensorflow.org/api_docs/python/tf/keras/layers/LeakyReLU}{here}.} activation function, the activation function for each layer, the amount of nodes per layer and regularization for layer's kernel and output AND . The activation functions used in the hyperparameter grid search where
 \begin{itemize}
     \item ReLU
     \item LeakyReLU
     \item tanh
     \item linear
 \end{itemize}
-whilst the different learning rates that was tested was $[9\cdot 10^{-2}, 9.5\cdot 10^{-2}, 10^{-3}, 1.5\cdot 10^{-3}]$, and the kernel and output regularization constant values were $[0.5, 0.1, 0.05, 0.01]$
+whilst the different learning rates that was tested was $[9\cdot 10^{-2}, 9.5\cdot 10^{-2}, 10^{-3}, 1.5\cdot 10^{-3}]$, and the kernel and output regularization constant values were $[0.5, 0.1, 0.05, 0.01]$.
 \par 
-The auto encoder was written using Tensorflow api\cite{tensorflow2015-whitepaper}\cite{chollet2015keras}, using a functional structure\footnote{More on the functional api can be found \href{https://www.tensorflow.org/guide/keras/functional}{here}.}. In practise, this model could just as well have been written as a Sequential model\footnote{More on sequential models can be found \href{https://www.tensorflow.org/guide/keras/sequential_model}{here}.}, but at a cost of flexibility and lack of potential non-linear structure in the architecture. 
+The auto encoder was written using Tensorflow api\cite{tensorflow2015-whitepaper}\cite{chollet2015keras}, using a functional structure\footnote{More on the functional api can be found \href{https://www.tensorflow.org/guide/keras/functional}{here}.}. In practise, this model could just as well have been written as a Sequential model\footnote{More on sequential models can be found \href{https://www.tensorflow.org/guide/keras/sequential_model}{here}.}, but at a cost of flexibility and lack of potential non-linear structure in the architecture. \par 
+Certain features where removed, as they did not have a good enough overlap between MC and ATLAS data, these where lep1\_tracksigd0pvunbiased and lep2\_tracksigd0pvunbiased, as shown below:
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/implementation/lep1_tracksigd0pvunbiased.pdf}
+    \caption{Lep1 tracksigd0unbiased histogram for background MC and ATLAS data. }
+    \label{fig:lep1sigd0}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.46\textwidth]{figures/implementation/lep2_tracksigd0pvunbiased.pdf}
+    \caption{Lep2 tracksigd0unbiased histogram for background MC and ATLAS data.}
+    \label{fig:lep2sigd0}
+\end{figure}
 
 \newpage
 \section{Results and Discussion}
 
-\subsection{Architecture}
+\subsection{First two models}
 The first auto encoder model was found with a grid search and is structured as shown in figure \ref{fig:big_ae_plot} below. 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_big.pdf}
+    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_big_rm3feats.pdf}
     \caption{Auto encoder architecture after grid search. }
     \label{fig:big_ae_plot}
 \end{figure}
-The grid search gave the optimal hyper parameters as follows: the encoder has the following activation functions BLANK, BLANK AND BLANK, and the decoder has the following activation functions BLANK, BLANK, BLANK and BLANK. The optimal learning rate was BLANK, the optimal kernel regularizer was BLANK, and the optimal activity regularizer was BLANK. \par This model appeared to struggle with reconstruction of ATLAS data, which lead to tests with a smaller auto encoder, use of dropout, initialization of weights and removal of certain features. The following figures show the architecture for the other models. 
+The grid search gave the optimal hyper parameters as follows: the encoder has the following activation functions: BLANK, BLANK, BLANK, BLANK, and the decoder has the following activation functions: BLANK, BLANK, BLANK and BLANK. The optimal learning rate was BLANK, the optimal kernel regularizer was BLANK, the optimal activity regularizer was BLANK and the optimal alpha for the leakyReLU was BLANK. \par 
+
+
+\begin{figure}[H]
+     \centering
+         \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3_feats.pdf}
+         \caption{Histogram showing reconstruction error for ATLAS data and background MC for big auto encoder. Y scale is in units of 1e6.}
+     \label{fig:data_b_big_pred}
+\end{figure}
+
+%In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good overlap of reconstruction error between ATLAS data and background MC. This is in accordance with the fact that the ATLAS Open Data only containing SM events.
+
+
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+    \includegraphics[width=\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats.pdf}
+    \caption{Reconstruction error of background MC and signal MC for big auto encoder. Y scale is in units 1e7. }
+    \label{fig:s_b_big_pred}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.46\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figures/results/rocs/b_s_roc_curve_big_rm3feats.pdf}
+         \caption{ROC curve signal MC and background MC for big auto encoder}
+         \label{fig:s_b_big_roc}
+     \end{subfigure}
+     
+        \caption{Reconstruction error distributions and ROC curve for ATLAS Open Data and background MC}
+        \label{fig:roc_sig_big}
+\end{figure}
+
+%In figure \ref{fig:s_b_big_pred} we observe the prediction of signal MC against background MC. It is clear that the algorithm manages to separate the two datasets, creating two separate distributions. This is further supported by the ROC curve in figure \ref{fig:s_b_big_roc}, which gives a AUC of 0.761.\par 
+\\
+To compare this architecture I created a smaller auto encoder, shown in figure \ref{fig:small_ae_plot}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_small.pdf}
-    \caption{Small auto encoder architecture after grid search. }
+    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_small_3rmfeats.pdf}
+    \caption{Smaller auto encoder architecture after grid search. }
     \label{fig:small_ae_plot}
 \end{figure}
 
+
 \begin{figure}[H]
-    \centering
-    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_drop_initweight.pdf}
-    \caption{Big auto encoder architecture after grid search, using random uniform distribution as initialization of weights on all layers and dropout between certain layers}
-    \label{fig:big_ae_plot_init_drop}
+     \centering
+         \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_small_3rmfeats.pdf}
+         \caption{Histogram showing reconstruction error for ATLAS data and background MC for small auto encoder. Y scale is in units of 1e6.}
+     \label{fig:data_b_big_pred}
 \end{figure}
 
-
-\subsection{Semi unsupervised}
-
-Using the hyperparameters from the gridsearch, a prediction on background MC, signal MC and ATLAS data was made after training on 80\% of the background MC. REMEMBER THAT BECAUSE OF LARGE DATA AND ONLY CPU THE ALGORITHM ONLY TRAINED 1 EPOCH PER THE FIGURES BELOW!!! 
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big.pdf}
-    \caption{Log Log plot of reconstruction error of background and signal MC for big auto encoder}
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+    \includegraphics[width=\textwidth]{figures/results/predictions/b_s_recon_small_3rmfeats.pdf}
+    \caption{Reconstruction error of background MC and signal MC for small auto encoder. Y scale is in units 1e7. }
     \label{fig:s_b_big_pred}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.46\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figures/results/rocs/b_s_roc_curve_small_3rmfeats.pdf}
+         \caption{ROC curve signal MC and background MC for small auto encoder}
+         \label{fig:s_b_big_roc}
+     \end{subfigure}
+     
+        \caption{Reconstruction error distributions and ROC curve for ATLAS Open Data and background MC}
+        \label{fig:roc_sig_big}
 \end{figure}
-
-In figure \ref{fig:s_b_big_pred} we have the reconstruction error of background and signal MC in a log log plot. The error shows the same trend for both datasets, and thus has not been able to clearly separate them as something different. This is indicative of a poor classifier.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big.pdf}
-    \caption{Log Log plot of reconstruction error of background MC and ATLAS Data for big auto encoder}
-    \label{fig:data_b_big_pred}
-\end{figure}
-
-In figure \ref{fig:data_b_big_pred} we have the reconstruction error for background MC and ATLAS data in a log log plot. The error displays two separate but close distributions. We also use normalized datapoints in the plot, thus the actual distributions have alot of background and some ATLAS data in the left distributions while the opposite in the right distributions. This is not ideal, as the classifier, with figure \ref{fig:s_b_big_pred} in mind, has learned not learned anything useful other than to somewhat copy the input. 
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_small.pdf}
-    \caption{Log Log plot of reconstruction error of background and signal MC for small auto encoder}
-    \label{fig:s_b_small_pred}
-\end{figure}
-In figure \ref{fig:s_b_small_pred} we have the reconstruction error for background and signal MC in a log log plot. Here we observe the same same trends as as for the larger auto encoder, indicative of poor performance of the auto encoder.
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_small.pdf}
-    \caption{Log Log plot of reconstruction error of background MC and ATLAS Data for small auto encoder}
-    \label{fig:data_b_small_pred}
-\end{figure}
-
-In figure \ref{fig:data_b_small_pred} we see that the classifier reconstructs both the ATLAS data and the background MC with the same trend, which means one of two things. Either the classifier just learning the identity function and copies what is put in and gives it out after, or it has manages to learn to reconstruct the standard model. 
-
 
 \begin{itemize}
     \item Difference between broad and narrow search
@@ -301,6 +331,8 @@ In figure \ref{fig:data_b_small_pred} we see that the classifier reconstructs bo
     \item tuning effect
     \item optimizing tensorflow code with use of autoclustering and possibly mixing floating point precision. 
     \item the use of roc curves, and the validity of what they say
+    \item test if removing mll and mt2 makes a difference
+    
 \end{itemize}
 
 
