@@ -13,4 +13,4 @@ Codebase contains notebooks with the machine learning and data handling
 Article contains the report written for this project 
 figures contains the results from the different runs. Split into relevant folder for different tries 
 tf_models contains trained networks 
-
+```
