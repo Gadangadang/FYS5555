@@ -8,7 +8,7 @@ in high energy physics.
 
 <br>
 The folders are structured ín the following way: <br>
-* Codebase contains notebooks with the machine learning and data handling <br>
-* Article contains the report written for this project <br>
-* figures contains the results from the different runs. Split into relevant folder for different tries <br>
-* tf_models contains trained networks <br>
+* Codebase contains notebooks with the machine learning and data handling 
+* Article contains the report written for this project 
+* figures contains the results from the different runs. Split into relevant folder for different tries 
+* tf_models contains trained networks 
