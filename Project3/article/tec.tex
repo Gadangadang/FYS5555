@@ -97,14 +97,13 @@
 \mbox{~}
 \clearpage
 \newpage
-\onecolumngrid
+
 
 \tableofcontents
 
-\newpage
 
 
-\twocolumngrid
+
 \section{Introduction}
 The standard model is arguably the best model ever created by man, showing remarkable accuracy comparing with experiments. Its crown jewel was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS collaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS collaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new particle discoveries since the early 70's, and this is somewhat alarming. The standard model has several issues, some of them includes explanation of dark energy, cosmic inflation, the hierarchy problem and no including of gravity. \par 
 This leads scientists to look beyond the standard model, and there are several models proposed, such as dark matter candidates, extra vector bosons and super symmetry. Attempts are made by multiple collaborations to discover evidence for these models, and there are several obstacles to overcome, such as method of analysis and sufficient amount of data. With the impressive progress of machine learning software such as Tensorflow\cite{tensorflow2015-whitepaper}, machine learning methods have become more and more popular as possible methods  to use for new physics. \par 
@@ -112,7 +111,7 @@ In the last decade machine learning has excelled from being tedious and hard to 
 \\
 This report is structured in a theory, implementation, results and discussion, and conclusion section. In the theory section we introduce the necessary theory, with respect to both data, method of analysis and choice of evaluation. In the implementation section we discuss data handling , with respect to cuts, event selection, scaling and feature choices, choice of hyper parameters for grid search and the software and api's used for training and tuning. In the results and discussion section we display the results and discuss them as as well as distinct observations. In the conclusion we summarize our findings. 
 
-\newpage
+
 \section{Theory}
 Some of theory sections about anomaly detection and machine learning algorithms are based on previous work done in other courses, such as \cite{FYSSTK} and \cite{ML_PROJ}.
 
@@ -239,35 +238,56 @@ Certain features where removed, as they did not have a good enough overlap betwe
 \newpage
 \section{Results and Discussion}
 
-\subsection{First two models}
+\subsection{The first model}
+
 The first auto encoder model was found with a grid search and is structured as shown in figure \ref{fig:big_ae_plot} below. 
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_big_rm3feats.pdf}
     \caption{Auto encoder architecture after grid search. }
     \label{fig:big_ae_plot}
 \end{figure}
-The grid search gave the optimal hyper parameters as follows: the encoder has the following activation functions: BLANK, BLANK, BLANK, BLANK, and the decoder has the following activation functions: BLANK, BLANK, BLANK and BLANK. The optimal learning rate was BLANK, the optimal kernel regularizer was BLANK, the optimal activity regularizer was BLANK and the optimal alpha for the leakyReLU was BLANK. \par 
+The grid search gave the optimal hyper parameters as follows: the encoder has the following activation functions: tanh, linear, linear, leakyReLU, and the decoder has the following activation functions: relu, leakyReLU, tanh, and linear. The optimal learning rate was 0.0015, the optimal kernel regularizer was 0.05, the optimal activity regularizer was 0.5 and the optimal alpha for the leakyReLU was 1. \par 
+The reconstruction error we get on ATLAS data is shown in figure \ref{fig:data_b_big_pred}.
 
-
-\begin{figure}[H]
+\begin{figure}[h]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3_feats.pdf}
-         \caption{Histogram showing reconstruction error for ATLAS data and background MC for big auto encoder. Y scale is in units of 1e6.}
+         \caption{Histogram showing reconstruction error for ATLAS data and background MC for big auto encoder. }
      \label{fig:data_b_big_pred}
 \end{figure}
 
-%In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good overlap of reconstruction error between ATLAS data and background MC. This is in accordance with the fact that the ATLAS Open Data only containing SM events.
+In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good overlap of reconstruction error between ATLAS data and background MC. This is in accordance with the fact that the ATLAS Open Data only containing SM events. Using all the signal MC samples, we can test if the classifier can distinguish new physics from SM processes by mere reconstruction. The reconstruction we found is shown in figure \ref{fig:s_b_big_pred_allsig}.
+
+\begin{figure}[h]
+     \centering
+     \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+    \includegraphics[width=\textwidth]{figures/results/predictions/b_s_recon_big_rm3feats_allsig_nolog.pdf}
+    \caption{Reconstruction error of background MC and signal MC for big auto encoder with all signal samples.  }
+    \label{fig:s_b_big_pred_allsig}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.46\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figures/results/rocs/b_s_roc_curve_big_rm3feats_allsig.pdf}
+         \caption{ROC curve signal MC and background MC for big auto encoder with all signal samples.}
+         \label{fig:s_b_big_roc_allsig}
+     \end{subfigure}
+     
+        \caption{Reconstruction error distributions and ROC curve for ATLAS Open Data and background MC}
+        \label{fig:roc_sig_big_allsig}
+\end{figure}
+From these results it appears that the auto encoder very well manages to separate signal from background, having only been shown background MC. However, there is some problems with this data. the Randall-Sundrum Graviton samples in the signal MC are very different from the rest of the signal samples, and thus the background, and are given with very high weights. Thus we have to check the reconstruction error on signal MC without the Randall-Sundrum Graviton samples. This is shown in figure \ref{fig:roc_sig_big_allsig_nogmumu}.
 
 
-
-\begin{figure}[H]
+\begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.46\textwidth}
         \centering
     \includegraphics[width=\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats.pdf}
-    \caption{Reconstruction error of background MC and signal MC for big auto encoder. Y scale is in units 1e7. }
+    \caption{Reconstruction error of background MC and signal MC for big auto encoder.  }
     \label{fig:s_b_big_pred}
      \end{subfigure}
      \hfill
@@ -279,48 +299,129 @@ The grid search gave the optimal hyper parameters as follows: the encoder has th
      \end{subfigure}
      
         \caption{Reconstruction error distributions and ROC curve for ATLAS Open Data and background MC}
-        \label{fig:roc_sig_big}
+        \label{fig:roc_sig_big_allsig_nogmumu}
 \end{figure}
 
-%In figure \ref{fig:s_b_big_pred} we observe the prediction of signal MC against background MC. It is clear that the algorithm manages to separate the two datasets, creating two separate distributions. This is further supported by the ROC curve in figure \ref{fig:s_b_big_roc}, which gives a AUC of 0.761.\par 
-\\
-To compare this architecture I created a smaller auto encoder, shown in figure \ref{fig:small_ae_plot}
+Here we clearly see that the auto encoder struggles to separate background and signal MC, with a AUC score of around 0.58. This shows that for signals that are fairly similar to background MC, this model will struggle to tell them apart. There are possibilities to try to mediate this. 
 
-\begin{figure}[H]
+\subsection{Attempts at improvement}
+
+One such method is altering the architecture of the auto encoder. To compare this architecture I created a smaller auto encoder, shown in figure \ref{fig:small_ae_plot}.
+
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_small_3rmfeats.pdf}
+    \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_small.pdf}
     \caption{Smaller auto encoder architecture after grid search. }
     \label{fig:small_ae_plot}
 \end{figure}
 
+The small auto encoder architecture is shown in figure \ref{fig:small_ae_plot}.
 
-\begin{figure}[H]
+
+\begin{figure}[h]
      \centering
-         \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_small_3rmfeats.pdf}
-         \caption{Histogram showing reconstruction error for ATLAS data and background MC for small auto encoder. Y scale is in units of 1e6.}
-     \label{fig:data_b_big_pred}
+         \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_small_rm3_feats_nogmumu.pdf}
+         \caption{Histogram showing reconstruction error for ATLAS data and background MC for small auto encoder. }
+     \label{fig:data_b_small_pred}
 \end{figure}
 
-\begin{figure}[H]
+Using the architecture in figure \ref{fig:small_ae_plot} we get a good overlap of ATLAS data and background MC, with a center of about 4 MSE reconstruction error. 
+
+\begin{figure}[h]
      \centering
      \begin{subfigure}[b]{0.46\textwidth}
         \centering
-    \includegraphics[width=\textwidth]{figures/results/predictions/b_s_recon_small_3rmfeats.pdf}
-    \caption{Reconstruction error of background MC and signal MC for small auto encoder. Y scale is in units 1e7. }
-    \label{fig:s_b_big_pred}
+    \includegraphics[width=\textwidth]{figures/results/predictions/b_s_recon_small_rm3_feats_nogmumu_nolog.pdf}
+    \caption{Reconstruction error of background MC and signal MC for small auto encoder. }
+    \label{fig:s_b_small_pred_}
      \end{subfigure}
      \hfill
      \begin{subfigure}[b]{0.46\textwidth}
          \centering
-         \includegraphics[width=\textwidth]{figures/results/rocs/b_s_roc_curve_small_3rmfeats.pdf}
+         \includegraphics[width=\textwidth]{figures/results/rocs/b_s_roc_curve_small_nogmumu.pdf}
          \caption{ROC curve signal MC and background MC for small auto encoder}
-         \label{fig:s_b_big_roc}
+         \label{fig:s_b_small_roc}
      \end{subfigure}
      
         \caption{Reconstruction error distributions and ROC curve for ATLAS Open Data and background MC}
-        \label{fig:roc_sig_big}
+        \label{fig:roc_sig_small}
 \end{figure}
 
+As shown in figure \ref{fig:roc_sig_small} we observe that even though this model gets a good overlap, it struggles even further than the big auto encoder, having an AUC score of only 0.48 which is only slightly better than guessing. This could mean that such a simple model needs more complexity in terms of layers and node reduction per layer to be able to learn how to separate.\par 
+Another idea is removing low level features that are fairly similar for background and signal MC. From testing it was found that even with as low as 13 features, the output from the algorithm only improved slightly.
+
+\begin{figure}[h]
+     \centering
+         \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3_feats_rmmanyfeats_loglog.pdf}
+         \caption{Histogram showing reconstruction error for ATLAS data and background MC for small auto encoder.}
+     \label{fig:data_b_big_pred_13feats}
+\end{figure}
+
+In figure \ref{fig:data_b_big_pred_13feats} we observe that the reconstruction error of ATLAS data and background MC have fairly good overlap. 
+
+\begin{figure}[h]
+     \centering
+     \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+    \includegraphics[width=\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats_rmmanyfeats_loglog.pdf}
+    \caption{Reconstruction error of background MC and signal MC for small auto encoder. }
+    \label{fig:s_b_big_pred_13}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.46\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figures/results/rocs/b_s_roc_curve_big_rmmanyfeats.pdf}
+         \caption{ROC curve signal MC and background MC for small auto encoder}
+         \label{fig:s_b_big_roc_13}
+     \end{subfigure}
+     
+        \caption{Reconstruction error distributions and ROC curve for ATLAS Open Data and background MC}
+        \label{fig:roc_sig_big_13feats}
+\end{figure}
+
+From figure \ref{fig:roc_sig_big_13feats} we observe that even with only 13 features, where most of the lower level features are removed, the auto encoder struggles to separate background and signal MC. There are about 10 events around 1 MSE reconstruction error that it cannot match with background MC, but the rest of the data overlaps fairly well. \par
+
+A third option is to change the scaling and look at its effect on the handling of data. The previous models have all used MinMax scaling to scale the data, which scales the data between 0 and 1. Standard scaling scales the data between -1 and 1. Using this scaling we found the following results.
+
+\begin{figure}[h]
+     \centering
+         \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3_feats_standard_propsigbacksplit.pdf}
+         \caption{Histogram showing reconstruction error for ATLAS data and background MC for big auto encoder, using standard scaling.}
+     \label{fig:data_b_big_pred_stand}
+\end{figure}
+
+In figure \ref{fig:data_b_big_pred_stand} we see that even though the reconstruction error for ATLAS data and background MC has a wide spread, it overlaps well, which indicates that the autoencoder learned to reproduce the standard model, even though some events where much harder to reproduce than others. 
+
+\begin{figure}[h]
+     \centering
+     \begin{subfigure}[b]{0.46\textwidth}
+        \centering
+    \includegraphics[width=\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats_standard_propsigbacksplit_nolog_allsig_nogmumu.pdf}
+    \caption{Reconstruction error of background MC and signal MC for big auto encoder. }
+    \label{fig:s_b_big_pred_stand}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.46\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{figures/results/rocs/b_s_roc_curve_big_standard_allsig_nogmumu.pdf}
+         \caption{ROC curve signal MC and background MC for big auto encoder}
+         \label{fig:s_b_big_roc_stand}
+     \end{subfigure}
+     
+        \caption{Reconstruction error distributions and ROC curve for ATLAS Open Data and background MC, using standard scaling.}
+        \label{fig:roc_sig_big_stand}
+\end{figure}
+
+In figure \ref{fig:s_b_big_pred_stand} we observe that the model somewhat overlaps the background and signal MC, which the exception of a few thousand samples in the second peak. All signals samples except for the Randall-Sundrum Graviton to dimuon is used here, so it appears here that the model manages to separate some of the signal samples. This model preformed better than the models using Min Max scaling, with a AUC score of about 0.63. \par 
+\\ 
+
+
+\subsection{Possible ways forward}
+From the results above it is clear that we cannot rule out the auto encoder as a useful method, as there are still many aspects that are not well understood. A good start would be to further study how the model learns each feature, and if it quickly converges towards only focusing one or a few main ones. If this is better understood, then maybe the construction of certain features could be made to handle this better, and force the network to learn other relations. Another point of interest is the relation between number of features and complexity of the architecture. From the models tested above, it would appear that a stacked and more complex auto encoder is needed for the algorithm to learn to reproduce the dataset. \par 
+It is not well understood how the hyper parameters are affecting each other, and in relation to the auto encoder, it would be interesting to further analyze the balance between tuning the hyperparameters for good reconstruction and good separation. This also brings us to the definition of the problem it self. The method aims to use reconstruction as means of separating out anomalies. But there are some flaws here, some of which are already mentioned. Should one aims strictly for the best reconstruction error overlap, or should one add other metrics to slightly guide the network. 
+
+
+\newpage
 \begin{itemize}
     \item Difference between broad and narrow search
     \item Bias 
@@ -335,7 +436,7 @@ To compare this architecture I created a smaller auto encoder, shown in figure \
     
 \end{itemize}
 
-
+\newpage
 \section{Conclusion}
 
 \clearpage
