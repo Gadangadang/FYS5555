@@ -301,6 +301,7 @@ In figure \ref{fig:s_b_big_allsig_nogmumu} and \ref{fig:roc_sig_big_allsig_nogmu
 
 \subsection{Attempts at improvement}
 
+\subsubsection{Unstacked auto encoder}
 One such method is altering the architecture of the auto encoder. To compare this architecture I created a smaller auto encoder, shown in figure \ref{fig:small_ae_plot}.
 
 \begin{figure}[H]
@@ -310,7 +311,7 @@ One such method is altering the architecture of the auto encoder. To compare thi
     \label{fig:small_ae_plot}
 \end{figure}
 
-The hyper parameters used for this model was a learning rate of 0.9, 24 nodes in the latent space, the activation function for the latent space was tanh, the activation function for the output was linear, the kernel regularization was 0.05 and the activation regularization was 0.01. The model was trained for 6 epochs.
+The hyper parameters used for this model was a learning rate of 0.9, 24 nodes in the latent space, the activation function for the latent space was tanh, the activation function for the output was linear, the kernel regularization was 0.05 and the activation regularization was 0.01. The model was trained for 6 epochs. 
 
 
 \begin{figure}[H]
@@ -339,8 +340,13 @@ Using the architecture in figure \ref{fig:small_ae_plot} I get a good overlap of
 \end{figure}
 
 
-As shown in figure \ref{fig:s_b_small_pred_} and \ref{fig:s_b_small_roc} we observe that even though this model gets a good overlap, it struggles even further than the big auto encoder, having an AUC score of only 0.48 which is only slightly better than guessing. This could mean that such a simple model needs more complexity in terms of layers and node reduction per layer to be able to learn how to separate.\par 
+As shown in figure \ref{fig:s_b_small_pred_} and \ref{fig:s_b_small_roc} we observe that even though this model gets a good overlap, it struggles even further than the big auto encoder, having an AUC score of only 0.48 which is only slightly better than guessing. This could mean that such a simple model needs more complexity in terms of layers and node reduction per layer to be able to learn how to separate. \par 
+
+\subsubsection{Reduced features in data set with stacked auto encoder}
+
 Another idea is removing low level features that are fairly similar for background and signal MC. From testing it was found that even with as low as 13 features, the output from the algorithm only improved slightly.
+
+
 
 \begin{figure}[H]    
   \centering
@@ -379,6 +385,8 @@ In figure \ref{fig:data_b_big_pred_13feats} we observe that the reconstruction e
 
 From figure \ref{fig:roc_sig_big_13feats} we observe that even with only 13 features, 
 [njet60,  nbjet85, isOS,isSF,  mt2, met\_et,  , lep1\_pt,lep1\_E, lep1\_ptcone30, lep1\_etcone20, lep2\_pt,  lep2\_E, costhstar], the auto encoder struggles to separate background and signal MC. There are about 10 events around -0.3 MSE reconstruction error that it cannot match with background MC, but the rest of the data overlaps fairly well. The ROC score for the auto encoder was around 0.59, which only slightly better than for the dataset with all 33 features. \par
+
+\subsubsection{Auto encoder with standard scaling}
 
 A third option is to change the scaling and look at its effect on the handling of data. The previous models have all used MinMax scaling to scale the data, where as this model used standard scaling instead. Using standard scaling I found the following results.
 
@@ -420,21 +428,24 @@ In figure \ref{fig:s_b_big_pred_stand} we observe that the model somewhat overla
 
 \subsection{Discussion and possible ways forward}
 There were several issues with training and tuning the model, much of which had to do with hardware. The background and signal MC data set alone was around 17 Gb of data. To do training, prediction and grid searches especially, GPU usage was needed. With Tensorflow's XLA\footnote{More on XLA \href{https://www.tensorflow.org/xla}{here}.} (Accelerated Linear Algebra), the algorithm got a speedup from 1 hour and 30 minutes to around 1 minute per epoch when training on 80\% of the background MC. Still, because of the enormous amount of data, the grid search had to be done using a smaller sample size. This was done by extracting 10 million events from the training set, randomly sampled, for training and 2 millions samples from the validation set (20\% of the hole background MC) for grid search validation. Thus each epoch only took 10-30 seconds, which allowed for many iterations of hyperparameter tuning. There is however the issue that the random sampling does accurately represent the SM background distribution, and thus the hyperparameters could very well have been even better tuned.  \par \par
-It is also worth noting that the ROC curves and reconstruction error figure using the signal MC only in part shows how the auto encoder performs. The samples does not represent all possible new physics, and thus we can only conclude from our results that the auto encoder struggles to separate those signal MC samples. There might very well be possible signals that are much more different than the signal MC samples. This is however only true if the auto encoder actually learned some hidden relations between the features that are not easy to detect. \par \par
-Another crucial point to make is that in the realm of machine learning, there are few guidelines for how the architecture should look. In this case with the auto encoder, the only requirement is that in the encoder the previous layers must have at least one more node than the one after, and in the decoder the layer after must have at least one more node than the one before it. With respect to the amount of layers, regularization of layers, bias or output, implementation of dropout layers or symmetry with regards to encoder and decoder architecture, an enormous hyper parameter search is the only way to find the ideal model. This bias that the designer of the given auto encoder brings is very hard to quantify, but is indeed crucial, and generates a gigantic pool of possibilities which, given enough time and resources could yield valuable insight. \par \par
-Scaling also had an interesting impact on the output, as it appears that standard scaling allows for better detection of anomalies. This choice of scaling improved the AUC score from around 0.58 to around 0.69, which is a significant improvement. One reason for why this scaling is better might be that outliers stick out more with this scaling method. \par \par
+
+It is also worth noting that the ROC curves and reconstruction error figure using the signal MC only in part shows how the auto encoder performs. The samples does not represent all possible new physics, and thus we can only conclude from our results that the auto encoder struggles to separate those signal MC samples. The auto encoder has one metric, and that is minimizing reconstruction error. If you then have a signal that looks very similar to background, then the reconstruction error will be similar to the background. This does not mean that the auto encoder has not learned some hidden relations in the data, only that those relations are not enough for those kinds of signals. In the event that other signals appears in detector data, the auto encoder could still find them. \par \par
+
+Another crucial point to make is that in the realm of machine learning, there are few guidelines for how the architecture should look. In this case with the auto encoder, the only requirement is that in the encoder the previous layers must have at least one more node than the one after, and in the decoder the layer after must have at least one more node than the one before it. With respect to the amount of layers, regularization of layers towards bias or output, implementation of dropout layers, initialization of weights, or symmetry with regards to encoder and decoder architecture, an enormous hyper parameter search is the only way to find the ideal model. This bias that the designer of the given auto encoder brings is very hard to quantify, but is indeed crucial, and generates a gigantic pool of possibilities which, given enough time and resources could yield valuable insight. \par \par
+
+Scaling also had an interesting impact on the output, as it appears that standard scaling allows for better detection of anomalies. This choice of scaling improved the AUC score from around 0.58 to around 0.69, which is a significant improvement. One reason for why this scaling is better might be that outliers stick out more with this scaling method, due to the centering around 0. It is also important to note here that these results are all done using all signal samples, except for Graviton to dimuons. Ideally one should have had individual predictions on all the signal MC that we have to see if there are differences in the prediction, thus allowing us to see what kind of signals the auto encoder struggles to filter out and vice versa. \par \par
+
 The choice of features also contributes to the effect of the auto encoder. The removal of the $d_0$ significance for both leptons was done by looking at the distribution of data and background MC by checking the difference between them, and was done by eye sight. This could certainly have been done better, for instance by requiring a threshold for how large the ratio between data and background MC can be. \par \par
 
 
 
-From the results above it is clear that the auto encoder cannot be ruled out as a possibly good candidate for new physics search, as there are still many aspects that are not well understood. A good start would be to further study how the model learns to merge and reconstruct each feature, and if it quickly converges towards only focusing on one or a few main features. If this is better understood, then maybe the construction of certain features in the preparation of the background MC and ATLAS data could be made to handle this better. It could very well be that certain features or combinations of certain features are two similar for the algorithm to tell them apart. Another point of interest is the relation between number of features and complexity of the architecture. From the models tested above, it would appear that a stacked and more complex auto encoder is needed for the algorithm to learn to reproduce the dataset. It is also not clear if a symmetric architecture is more ideal than a non symmetric architecture, and a hyper parameter search with this included could yield interesting results. \par \par
+From the results above there is a case for that auto encoder should not be ruled out as a possibly good candidate for new physics search, as there are still many aspects that are not well understood. A good start would be to further study how the model learns to merge and reconstruct each feature, and if it quickly converges towards only focusing on one or a few main features. If this is better understood, then maybe the construction of certain features in the preparation of the background MC and ATLAS data could be made to handle this better. It could very well be that certain features or combinations of certain features are two similar for the algorithm to tell them apart. Another point of interest is the relation between number of features and complexity of the architecture. From the models tested above, it would appear that a stacked and more complex auto encoder is needed for the algorithm to learn to reproduce the dataset. It is also not clear if a symmetric architecture is more ideal than a non symmetric architecture, and a hyper parameter search with this included could yield interesting results. Another important, but computationally heavy, task is to do an extensive hyper parameter search, using a lot more background MC, to check ideal structure in terms (non)-symmetry or amount of layers in architecture, number of nodes, activation functions etc, as mentioned earlier. Finally, to search for new physics using an auto encoder, there should be better insight as to what "classes" of new physics final states that the algorithm could better filter out. Suppose you compare two candidates for new physics and they are somewhat different, it might be that certain auto encoder could have the architecture altered to better filter out certain signal classes, and not a specific model, thus preserving the semi unsupervised part.   \par \par
 
 %It is not well understood how the hyper parameters are affecting each other, and in relation to the auto encoder, it would be interesting to further analyze the balance between tuning the hyperparameters for good reconstruction and good separation. This also brings us to the definition of the problem it self. The method aims to use reconstruction as means of separating out anomalies. But there are some flaws here, some of which are already mentioned. Should one aims strictly for the best reconstruction error overlap, or should one add other metrics to slightly guide the network. 
 
 
 
 \begin{itemize}
-    \item Difference between broad and narrow search
     \item Bias 
     \item bias with features to choose
     \item difference of how well the model detects different signal models in mc data signals
