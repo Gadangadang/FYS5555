@@ -28,6 +28,7 @@
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 \usepackage{siunitx}
 \usepackage{mathtools}
+\usepackage{lipsum}
 \usepackage{abstract}
 %\usepackage{tocloft}
 %\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}} 
@@ -85,8 +86,17 @@
 \vspace{0.5cm}
 
 \begin{center}
-\begin{abstract}
 
+\begin{abstract}
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Ut purus elit, vestibulum ut, placerat ac,
+adipiscing vitae, felis. Curabitur dictum gravida mauris. Nam arcu libero, nonummy eget, consectetuer
+id, vulputate a, magna. Donec vehicula augue eu neque. Pellentesque habitant morbi tristique senectus
+et netus et malesuada fames ac turpis egestas. Mauris ut leo. Cras viverra metus rhoncus sem. Nulla
+et lectus vestibulum urna fringilla ultrices. Phasellus eu tellus sit amet tortor gravida placerat. Integer
+sapien est, iaculis in, pretium quis, viverra ac, nunc. Praesent eget sem vel leo ultrices bibendum. Aenean
+faucibus. Morbi dolor nulla, malesuada eu, pulvinar at, mollis ac, nulla. Curabitur auctor semper nulla.
+Donec varius orci eget risus. Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam. Duis eget
+orci sit amet orci dignissim rutrum.
 \end{abstract}
 \end{center}
 \vspace{2.5cm}
@@ -99,15 +109,14 @@
 \clearpage
 \newpage
 
-\setcounter{tocdepth}{1}
 \tableofcontents
 
 
 
 
 \section{Introduction}
-The standard model is arguably the best model ever created by man, showing remarkable accuracy comparing with experiments. Its crown jewel was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS collaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS collaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new particle discoveries since the early 70's, and this is somewhat alarming. The standard model has several issues, some of them includes explanation of dark energy, cosmic inflation, the hierarchy problem and no including of gravity. \par 
-This leads scientists to look beyond the standard model, and there are several models proposed, such as dark matter candidates, extra vector bosons and super symmetry. Attempts are made by multiple collaborations to discover evidence for these models, and there are several obstacles to overcome, such as method of analysis and sufficient amount of data. With the impressive progress of machine learning software such as Tensorflow\cite{tensorflow2015-whitepaper}, machine learning methods have become more and more popular as possible methods  to use for new physics. \par 
+The standard model is arguably the best model ever created by man, showing remarkable accuracy comparing with experiments. Its crown jewel was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS collaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS collaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new particle discoveries since the early 70's, and this is somewhat alarming. The standard model has several issues, some of them includes lack of an explanation of dark energy, cosmic inflation, the hierarchy problem and not including gravity. \par 
+This leads scientists to look beyond the standard model, and there are several models proposed, such as dark matter candidates, extra vector bosons and super symmetry. Attempts are made by multiple collaborations to discover evidence for these models, and there are several obstacles to overcome, such as method of analysis and sufficient amount of data. With the impressive progress of machine learning software such as Tensorflow\cite{tensorflow2015-whitepaper}, machine learning methods have become more and more popular as possible methods  to use for searching for new physics. \par 
 In the last decade machine learning has excelled from being tedious and hard to program to become available to almost everyone. It's scale-ability and ability to discover hidden structure in large datasets makes it an intriguing candidate to use on data from the Large Hadron Collider. One possible candidate is semi unsupervised learning, which is done by an auto encoder. The idea is to train a model-independent algorithm on only background, with the hope that what ever new physics that is in the data is detected, without knowing what it is.  This machine learning model is the method of choice for this report. \par
 \\
 This report is structured in a theory, implementation, results and discussion, and conclusion section. In the theory section the necessary theory is introduced, with respect to both data, method of analysis and choice of evaluation. In the implementation section I discuss data handling , with respect to cuts, event selection, scaling and feature choices, choice of hyper parameters for grid search and the software and api's used for training and tuning. In the results and discussion section I display the results and discuss them as as well as distinct observations. In the conclusion I summarize my findings. 
@@ -125,9 +134,9 @@ Anomaly detection is a tool with a wide range of uses, from time series data, fr
     \item Collective anomalies
 \end{enumerate}
 
-For the purpose of this report we will mostly consider collective anomalies, as anomalies in the standard model has to be collective to claim anything due to noise etc. \par 
+For the purpose of this report we will mostly consider collective anomalies, as anomalies in high energy physics has to be collective to claim anything, as noise and other factors can and often do create point or event collective anomalies. Through triggers\footnote{ATLAS experiment \href{https://atlas.cern/Discover/Detector/Trigger-DAQ}{website}.}, one hopes that most of the noise and other factors are accounted for, but it is not a perfect system.\par 
 
-In high energy physics we can, using machine learning, separate anomaly detection into two categories, supervised and unsupervised searches. 
+In high energy physics we can, using machine learning, separate anomaly detection into two categories, supervised and unsupervised searches. Figure \ref{fig:corr_class}, \ref{fig:wrong_class} and \ref{fig:unsup_class} are not based on actual predictions and are meant to only illustrate.
 
 \begin{figure}[H]
     \centering
@@ -152,11 +161,13 @@ In figure \ref{fig:corr_class} we see an example of supervised classification. B
     \label{fig:unsup_class}
 \end{figure}
 
-In figure \ref{fig:unsup_class} we have an example of unsupervised learning. Here we do not tell what is anomalies and what is background. Note that the unsupervised classifier does not classify correctly every anomaly, and the grade of which it does vary from model to model, and from dataset to dataset. 
+In figure \ref{fig:unsup_class} we have an example of unsupervised learning. Here we do not tell what is anomalies and what is background. Note that the unsupervised classifier does not classify correctly every anomaly, and the grade of which it does vary from model to model, and from dataset to dataset. \par \par 
+
+There are several ways to declare data as anomalies and not known data. One method used in time series data is to have a running average, and then if some values deviate with for instance 5 standard deviations, you tag that event. But because we are only interested in collective anomalies and not point anomalies, we need to use distributions to evaluate the output of the machine learning algorithm. A perfect classifier would for instance have two completely separate distributions, where as a poor classifier would have two distributions with overlap. An additional metric to use is the so called ROC curve, which checks the output of the classifier and finds how often the classifier predicts a true and a false positive. This can only be done with labeled data, thus is not itself a metric of whether or not the algorithm detected new physics, but rather how well it can distinguish known anomalies.
 
 \subsection{Beyond standard model physics}
 
-In the context of high energy physics, collective anomalies would be new physics with both do and do not have a model for. Such anomalies could be super symmetric particles\cite{JMLR:v18:16-558}, new vector bosons or dark matter particles, as well as many other candidates. These types of searches require enormous amounts of data, and both supervised and unsupervised methods are tried continuously to see if there are "hidden" relations in the data that can separate the known standard model from the unknown new physics.\par 
+In the context of high energy physics, collective anomalies would be new physics we both do and do not have a model for. Such anomalies could be super symmetric particles\cite{JMLR:v18:16-558}, new vector bosons or dark matter particles, as well as many other candidates. These types of searches require enormous amounts of data, and both supervised and unsupervised methods are tried continuously to see if there are "hidden" relations in the data that can separate the known standard model from the unknown new physics.\par 
 The methods have their strengths and weaknesses, and should be deployed with this in mind. A supervised model will always be better to classify and separate distribution of background and signal events, and if the signal actually exists in the data from the detector, it will give better accuracy than any (semi-) unsupervised methods. \par 
 In the event that some signal actually exist in the data from the detector that we do not have a model for, a supervised model will not be able to recognize it purely as a signal, whilst the unsupervised might claim that there is something other than SM background. The certainty of the results will vary with different models, but in the case of an auto encoder, this is due to the fact that it will only recognize background events that is has trained on, and not any new physics. The drawback with using unsupervised methods in high energy physics, or other fields with multiple anomaly candidates, is that you cannot know what the signal is, only that is it not background. \par 
 
@@ -206,7 +217,8 @@ The choice of features is a mixture of specification and broadness. In this cont
 The features were picked such that there are no missing values, only 0 or larger than 0. For regular machine learning problems, missing values usually gets replaced by the mean value of the feature. This is however a problem when analysing physics, as such a choice could violate the laws of physics. To avoid this, all features are designed to either have 0 if missing, or sum up the contributions of both missing and present values, given that they represent the same type of information. \par 
 An example of this is if we have two jets in one event and three in another, using the transverse momentum of the jets as features. We cannot in the first event input the mean values of all third jet-transverse momentum in the entire dataset, but we could put 0, or sum all the transverse momentum for the jets in the given event into one feature. Another possibility is to only give the count of jets in the event, and there are even more ways to solve this issue. 
 
-
+\subsubsection{Signal MC}
+To test the algorithm I use the following signal sample categories. There are five supersymmetric sample categories: SUSYSlepSlep, SUSYC1C1, GG\_ttn1, TT\_directTT and SUSYC1N2\cite{DeSanto:2644352}, three Z' boson sample categories: Zprime\_ee, Zprime\_mumu and Zprime\_tt\cite{https://doi.org/10.48550/arxiv.1308.5874}, three Randall-Sundrum graviton sample categories: RS\_G\_ZZ, G\_ee and G\_mumu, and one dark matter mediator sample category: dmV\_Zll. These signal MC samples are describe theoretically allowed processes, but none of them have been found in nature. 
 
  
 
@@ -218,7 +230,8 @@ For the auto encoder to accurately reconstruct the standard model, the model nee
     \item tanh
     \item linear
 \end{itemize}
-whilst the different learning rates that was tested was $[9\cdot 10^{-2}, 9.5\cdot 10^{-2}, 10^{-3}, 1.5\cdot 10^{-3}]$, and the kernel and output regularization constant values were $[0.5, 0.1, 0.05, 0.01]$. The optimizer used for all the models is the ADAM\footnote{More on ADAM optimizer \href{https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam}{here}.} optimizer. \par 
+whilst the different learning rates that was tested was $[9\cdot 10^{-2}, 9.5\cdot 10^{-2}, 10^{-3}, 1.5\cdot 10^{-3}]$, and the kernel and output regularization constant values were $[0.5, 0.1, 0.05, 0.01]$. The optimizer used for all the models is the ADAM\footnote{More on ADAM optimizer \href{https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam}{here}.} optimizer. \par \par 
+The background samples where split into a 80-20 split, where 80\% were used for training and tuning, and 20\% were mixed with signal MC samples for testing. The 80\% training set what then again split with a 80-20 split for the hyperparameter search, called grid\_train and grid\_test. Due to the large amount of events in the background MC, I had to pick out a sample that had enough events to be a fair representation of the entire training set. Thus 10 million events were randomly sampled from grid\_train for hyperparameter training and 2 million events sampled from grid\_test for hyperparameter validation. \par 
 The auto encoder was written using Tensorflow api\cite{tensorflow2015-whitepaper}\cite{chollet2015keras}, using a functional structure\footnote{More on the functional api can be found \href{https://www.tensorflow.org/guide/keras/functional}{here}.}. In practise, this model could just as well have been written as a Sequential model\footnote{More on sequential models can be found \href{https://www.tensorflow.org/guide/keras/sequential_model}{here}.}, but at a cost of flexibility and lack of potential non-linear structure in the architecture. \par 
 Certain features where removed, as they did not have a good enough overlap between MC and ATLAS data. All features where checked to ensure as good correspondence as possible, and the figures for all the features can be found in the \href{https://github.com/Gadangadang/FYS5555/tree/main/Project3}{Github repo} for this project, under the "figures/implementation" folder. The features that were chosen to exclude where lep1\_tracksigd0pvunbiased and lep2\_tracksigd0pvunbiased, which are shown below:
 
@@ -237,7 +250,7 @@ Certain features where removed, as they did not have a good enough overlap betwe
 \end{figure}
 
 
-\section{Results and Discussion}
+\section{Results}
 
 \subsection{The first model}
 
@@ -255,7 +268,7 @@ The reconstruction error of ATLAS data is shown in figure \ref{fig:data_b_big_pr
 \begin{figure}[H]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3feats_loglog.pdf}
-         \caption{Histogram showing reconstruction error for ATLAS data and background MC for big auto encoder. }
+         \caption{Log log histogram showing reconstruction error for ATLAS data and background MC for big auto encoder. }
      \label{fig:data_b_big_pred}
 \end{figure}
 
@@ -265,7 +278,7 @@ In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good ove
 \begin{figure}[H]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big_rm3feats_loglog.pdf}
-    \caption{Reconstruction error of background MC and signal MC for big auto encoder with all signal samples.  }
+    \caption{Log log histogram showing reconstruction error of background MC and signal MC for big auto encoder with all signal samples.  }
     \label{fig:s_b_big_pred_allsig}
 \end{figure}
 
@@ -285,7 +298,7 @@ From these results in figure \ref{fig:s_b_big_pred_allsig} and \ref{fig:s_b_big_
 \begin{figure}[H]    
      \centering
     \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats.pdf}
-    \caption{Reconstruction error of background MC and signal MC for big auto encoder without Graviton to dimuons.  }
+    \caption{Log log histogram showing reconstruction error of background MC and signal MC for big auto encoder without Graviton to dimuons.  }
     \label{fig:s_b_big_allsig_nogmumu}
 \end{figure}
 
@@ -317,7 +330,7 @@ The hyper parameters used for this model was a learning rate of 0.9, 24 nodes in
 \begin{figure}[H]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_small_rm3_feats_nogmumu.pdf}
-         \caption{Histogram showing reconstruction error for ATLAS data and background MC for small auto encoder. }
+         \caption{Log log histogram showing reconstruction error for ATLAS data and background MC for small auto encoder. }
      \label{fig:data_b_small_pred}
 \end{figure}
 
@@ -326,7 +339,7 @@ Using the architecture in figure \ref{fig:small_ae_plot} I get a good overlap of
 \begin{figure}[H]    
  \centering
     \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_small_rm3_feats_nogmumu_nolog.pdf}
-    \caption{Reconstruction error of background MC and signal MC for small auto encoder. }
+    \caption{Log log histogram showing reconstruction error of background MC and signal MC for small auto encoder. }
     \label{fig:s_b_small_pred_}   
   
 \end{figure}
@@ -361,7 +374,7 @@ In figure \ref{fig:ae_13feats_big} we have the tuned auto encoder architecture b
 \begin{figure}[H]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3_feats_rmmanyfeats_loglog.pdf}
-         \caption{Histogram showing reconstruction error for ATLAS data and background MC for big auto encoder using only 13 features.}
+         \caption{Log log histogram showing reconstruction error for ATLAS data and background MC for big auto encoder using only 13 features.}
      \label{fig:data_b_big_pred_13feats}
 \end{figure}
 
@@ -370,7 +383,7 @@ In figure \ref{fig:data_b_big_pred_13feats} we observe that the reconstruction e
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats_rmmanyfeats_loglog.pdf}
-    \caption{Reconstruction error of background MC and signal MC for big auto encoder using only 13 features. }
+    \caption{Log log histogram showing reconstruction error of background MC and signal MC for big auto encoder using only 13 features. }
     \label{fig:roc_sig_big_13feats}
 \end{figure}
 
@@ -402,7 +415,7 @@ In figure \ref{fig:ae_big_standard} we have the architecture for the auto encode
 \begin{figure}[H]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3_feats_standard_propsigbacksplit.pdf}
-         \caption{Histogram showing reconstruction error for ATLAS data and background MC for big auto encoder, using standard scaling.}
+         \caption{Log log histogram showing reconstruction error for ATLAS data and background MC for big auto encoder, using standard scaling.}
      \label{fig:data_b_big_pred_stand}
 \end{figure}
 
@@ -411,7 +424,7 @@ In figure \ref{fig:data_b_big_pred_stand} we see that even though the reconstruc
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats_standard_propsigbacksplit_nolog_allsig_nogmumu.pdf}
-    \caption{Reconstruction error of background MC and signal MC for big auto encoder, using standard scaling. }
+    \caption{Log log histogram showing reconstruction error of background MC and signal MC for big auto encoder, using standard scaling. }
     \label{fig:s_b_big_pred_stand}
 \end{figure}
 
@@ -426,7 +439,7 @@ In figure \ref{fig:data_b_big_pred_stand} we see that even though the reconstruc
 
 In figure \ref{fig:s_b_big_pred_stand} we observe that the model somewhat overlaps the background and signal MC, which the exception of a few thousand samples in the second peak. It appears here that the model manages to separate some signal events from the background MC. This model preformed better than the models using Min Max scaling, with a AUC score of about 0.69. \par 
 
-\subsection{Discussion and possible ways forward}
+\section{Discussion and possible ways forward}
 There were several issues with training and tuning the model, much of which had to do with hardware. The background and signal MC data set alone was around 17 Gb of data. To do training, prediction and grid searches especially, GPU usage was needed. With Tensorflow's XLA\footnote{More on XLA \href{https://www.tensorflow.org/xla}{here}.} (Accelerated Linear Algebra), the algorithm got a speedup from 1 hour and 30 minutes to around 1 minute per epoch when training on 80\% of the background MC. Still, because of the enormous amount of data, the grid search had to be done using a smaller sample size. This was done by extracting 10 million events from the training set, randomly sampled, for training and 2 millions samples from the validation set (20\% of the hole background MC) for grid search validation. Thus each epoch only took 10-30 seconds, which allowed for many iterations of hyperparameter tuning. There is however the issue that the random sampling does accurately represent the SM background distribution, and thus the hyperparameters could very well have been even better tuned.  \par \par
 
 It is also worth noting that the ROC curves and reconstruction error figure using the signal MC only in part shows how the auto encoder performs. The samples does not represent all possible new physics, and thus we can only conclude from our results that the auto encoder struggles to separate those signal MC samples. The auto encoder has one metric, and that is minimizing reconstruction error. If you then have a signal that looks very similar to background, then the reconstruction error will be similar to the background. This does not mean that the auto encoder has not learned some hidden relations in the data, only that those relations are not enough for those kinds of signals. In the event that other signals appears in detector data, the auto encoder could still find them. \par \par
@@ -450,17 +463,13 @@ From the results above there is a case for that auto encoder should not be ruled
     \item bias with features to choose
     \item difference of how well the model detects different signal models in mc data signals
     \item any interesting in actual data?
-    \item difference in scaling
-    \item tuning effect
-    \item optimizing tensorflow code with use of autoclustering and possibly mixing floating point precision. 
-    \item the use of roc curves, and the validity of what they say
     \item test if removing mll and mt2 makes a difference
     
 \end{itemize}
 
 
 \section{Conclusion}
-This report attempted to create an auto encoder that manages to high accuracy reconstruct standard model processes based on training done on background MC and with poor reconstruction on collective anomalies given as signal MC samples. Several models where tuned using Keras-Tuner to get the optimal hyperparameters, and whilst all of the models successfully managed to have good overlap between background MC and ATLAS Open data, only the autoencoder trained on standard scaled datasets manages to separate out signals. We found that the ROC score increased both when using a multi layer auto encoder and by using this standard scaling. Based on the findings in this report, the auto encoder cannot be completely disregarded as a useful method for anomaly detection in high energy physics, as there are still a lot about the algorithm that is not well understood. 
+This report attempted to create an auto encoder that manages to high accuracy reconstruct standard model processes based on training done on background MC and with poor reconstruction on collective anomalies given as signal MC samples. All machine learning was done using the Tensorflow api, with functional structure. Several models where tuned using Keras-Tuner to get the semi-optimal hyperparameters, and whilst all of the models successfully managed to have good overlap between background MC and ATLAS Open data, only the autoencoder trained on standard scaled datasets managed to separate out signals. We found that the ROC score increased both when using a multi layer auto encoder and by using this standard scaling. Based on the findings in this report, the auto encoder cannot be completely disregarded as a useful method for anomaly detection in high energy physics, as there are still a lot about the algorithm that is not well understood. Further research into and extensive hyperparameter search could yield very interesting results. 
 
 
 \clearpage
