@@ -107,6 +107,7 @@ In this report we implemented an auto encoder using Tensorflow framework for ano
 
 
 \section{Introduction}
+
 The standard model is arguably the most successful scientific model, showing remarkable accuracy comparing with experiments.
 The Higgs boson was the last missing piece, and was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS collaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS collaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new particle discoveries since the early 70's, and this is somewhat alarming. The standard model has several issues, some of them includes lack of an explanation of dark energy, cosmic inflation, the hierarchy problem and not including gravity. \par 
 This leads scientists to look beyond the standard model, and there are several models proposed, such as dark matter candidates, extra vector bosons and super symmetry. Attempts are made by multiple collaborations to discover evidence for these models, and there are several obstacles to overcome, such as method of analysis and sufficient amount of data. With the impressive progress of machine learning software tools such as Tensorflow\cite{tensorflow2015-whitepaper}, machine learning methods have become more and more popular as possible methods  to use for searching for new physics. \par 
@@ -128,6 +129,7 @@ Anomaly detection is a tool with a wide range of uses, from time series data, fr
     \item Contextual anomalies
     \item Collective anomalies
 \end{enumerate}
+
 
 
 For the purpose of this report we will mostly consider collective anomalies. Anomalies in high energy physics have to be collective to claim anything, as noise and other factors can and often do create point or event collective anomalies. Through triggers\footnote{ATLAS experiment \href{https://atlas.cern/Discover/Detector/Trigger-DAQ}{website}.}, one hopes that most of the noise and other factors are accounted for, but it is not a perfect system.\par 
@@ -157,12 +159,14 @@ In figure \ref{fig:corr_class} we see an example of supervised classification. B
     \label{fig:unsup_class}
 \end{figure}
 
+
 In figure \ref{fig:unsup_class} we have an example of unsupervised learning. Here we do not tell what are anomalies and what are expected behavior. Note that the unsupervised classifier does not classify correctly all anomalies. 
 The grade of which it does vary from model to model and from dataset to dataset. \par \par 
 
 There are several ways to define events as anomalies and not expected events. One method used in time series data is to have a running average, and then if some values deviate with x standard deviations, that event is tagged. But because we are only interested in collective anomalies and not point anomalies, we need to use distributions to evaluate the output of the machine learning algorithm. A perfect binary classifier would for instance have two completely separate distributions, while a poor binary classifier would have two distributions with overlap. An additional metric to use is the so called ROC curve, which checks the output of the classifier and finds how often the classifier predicts a true and a false positive. This can only be done with labeled data, thus is not itself a metric of whether or not the algorithm detected new physics, but rather how well it can distinguish known anomalies.
 
 \subsection{Beyond standard model physics}
+
 
 
 
@@ -179,6 +183,7 @@ In the event that some signal actually exist in the data from the detector that 
 
 
 \subsection{Stacked auto encoder}
+
 One method to attack the anomaly detection problem is the so called (stacked) auto encoder. The idea is based on reconstruction, and has been implemented for denoising of images, image compression, and anomaly detection. 
 An auto encoder is a subgroup of feed forward neural networks\cite{FYSSTK}. The goal with that model is to compress the information into fewer variables, called the latent space, which then can explain much of the data through decoding that information. This allows the algorithm to learn the most important components of the data. An illustrative image of an auto encoder is shown in figure \ref{fig:auto_en_archi}. 
 
@@ -214,6 +219,7 @@ where the parameters $(\xi, \theta)$ are tuned to reconstruct the data as close 
 
 \subsection{Handling of data}
 
+
 In the appendix the features used in the data set are listed, with their respective datatype and description. The datasets are separated into two categories, background \& signal mc and actual data from a detector. 
 
 The totality of the data used in this report is given as ATLAS Open Data\footnote{Link to ATLAS Open Data \href{https://atlas.cern/resources/opendata}{here}.}. This is a dataset that has been analyzed by ATLAS for new physics, and have thus been released to the public. 
@@ -238,7 +244,9 @@ To test the algorithm I use the following signal sample categories. There are fi
  
 
 \subsection{Tuning and training}
+
 For the auto encoder to accurately reconstruct the standard model, the model needs to train on the background mc. However, neural networks are highly susceptible to hyperparameters, which needs tuning. In this project I used Keras-tuner\cite{omalley2019kerastuner} as tuning architecture for tuning. The choice of tuner for this report was Hyperband\cite{JMLR:v18:16-558}. It is not well understood how the hyperparameters interact with each other to affect the result, therefor there are really no strict guidelines for approaching this problem. A result of this might be that the choice of hyperparameters seem completely random or strange. The hyperparameters used in the network are the learning rate, the alpha parameter for the LeakyReLU\footnote{In Tensorflow LeakyReLU is implemented as a layer and not an activation function, but the layer can be passed as an activation argument, which leads to creating \href{https://www.tensorflow.org/api_docs/python/tf/keras/utils/get_custom_objects}{custom objects } in the Keras back-end when tuning with Keras-Tuner. More on the LeakyReLU api can be found \href{https://www.tensorflow.org/api_docs/python/tf/keras/layers/LeakyReLU}{here}.} activation function, the activation function for each layer, the amount of nodes per layer and regularization for layer's kernel and output. The regularization is added to prevent the algorithm from overfitting too much towards the background mc. The activation functions used in the hyperparameter search where
+
 \begin{itemize}
     \item ReLU
     \item LeakyReLU
@@ -246,6 +254,7 @@ For the auto encoder to accurately reconstruct the standard model, the model nee
     \item Linear
 \end{itemize}
 whilst the different learning rates that was tested was $[9\cdot 10^{-2}, 9.5\cdot 10^{-2}, 10^{-3}, 1.5\cdot 10^{-3}]$, and the kernel and output regularization constant values were $[0.5, 0.1, 0.05, 0.01]$. The optimizer used for all the models is the ADAM\cite{https://doi.org/10.48550/arxiv.1412.6980} optimizer. \par \par 
+
 The background mc where split into a 80-20 split, where 80\% were used for training and tuning, and 20\% were mixed with signal mc for testing. The 80\% training set was then again split with a 80-20 split for the hyperparameter search, called grid\_train and grid\_test. Due to the large amount of events in the background mc, I had to pick out a sample that had enough events to be a fair representation of the entire training set. Thus 10 million events were randomly sampled from grid\_train for hyperparameter training and 2 million events sampled from grid\_test for hyperparameter validation. \par 
 
 The auto encoder was written using the Tensorflow api\cite{tensorflow2015-whitepaper}\cite{chollet2015keras}, using a functional structure\footnote{Functional structure uses a function call for layers, i.e for layers a,b, then b(a) will connect the two layers, and equals a sequential link a $\to$ b. This allows for more flexible structures. More on the functional api can be found \href{https://www.tensorflow.org/guide/keras/functional}{here}.}. In practise, this model could just as well have been written as a Sequential model\footnote{Sequential structure adds layers in sequence, i.e for layers a, b, c we have that a $\to$ b $\to$ c, with a strict structure. This allows for more organized code. More on sequential models can be found \href{https://www.tensorflow.org/guide/keras/sequential_model}{here}.}, but at a cost of flexibility and lack of potential non-linear structure in the architecture. \par 
@@ -273,6 +282,7 @@ We see in figures \ref{fig:lep1sigd0} and \ref{fig:lep2sigd0} that both have exc
 
 \subsection{The first model}
 
+
 The first auto encoder model was found with a hyper parameter search and is structured as shown in figure \ref{fig:big_ae_plot}. 
 
 \begin{figure}[H]
@@ -281,6 +291,7 @@ The first auto encoder model was found with a hyper parameter search and is stru
     \caption{Auto encoder architecture after hyper parameter search. }
     \label{fig:big_ae_plot}
 \end{figure}
+
 The hyper parameter search gave the optimal hyper parameters listed below. The encoder had the following activation functions:
 \begin{enumerate}
     \item layer: tanh
@@ -299,6 +310,7 @@ the decoder has the following activation functions:
 
 
 The optimal learning rate was 0.0015, the optimal kernel regularizer was 0.05, the optimal activity regularizer was 0.5 and the optimal alpha for the leakyReLU was 1. The batch size for both training, tuning and prediction was 8192. These hyper parameters was found after around 30 minutes of searching, and then stopped, as it appeared that the validation MSE did not improve much. Thus, there are most likely a better set of hyper parameters that could get an even lower validation MSE. \par 
+
 The reconstruction error of ATLAS data is shown in figure \ref{fig:data_b_big_pred}.
 
 \begin{figure}[H]
@@ -307,6 +319,7 @@ The reconstruction error of ATLAS data is shown in figure \ref{fig:data_b_big_pr
          \caption{Log log histogram showing reconstruction error for ATLAS data and background mc for big auto encoder. }
      \label{fig:data_b_big_pred}
 \end{figure}
+
 
 In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good overlap of reconstruction error between ATLAS data and background mc. This is in accordance with the fact that the ATLAS collaboration has with very high certainty only found standard model events in the ATLAS Open Data. We also observe here that the algorithm groups events with different error, as shown with the camel back pattern. This pattern is repeated several times in figure \ref{fig:data_b_big_pred}, which indicates that the algorithm learned its own categories for the standard model. Using all the signal mc samples, I tested if the classifier could distinguish new physics signal mc from sm processes by mere reconstruction. The reconstruction error is shown in figure \ref{fig:s_b_big_pred_allsig}.
 
@@ -328,6 +341,7 @@ In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good ove
 \end{figure}
 
 
+
 From the results in figure \ref{fig:s_b_big_pred_allsig} and \ref{fig:s_b_big_roc_allsig} we see that the auto encoder very well manages to separate signal from background, having only been shown background mc. However, there is some problems with these results. The Randall-Sundrum Graviton to dimuons samples in the signal mc were given with very high weights compared to the Graviton to dielectrons samples, which highly indicates that the data samples are corrupt somehow. Thus we have to check the reconstruction error on signal mc without the Randall-Sundrum Graviton samples. This is shown in figure \ref{fig:roc_sig_big_allsig_nogmumu}.
 
 
@@ -344,6 +358,7 @@ From the results in figure \ref{fig:s_b_big_pred_allsig} and \ref{fig:s_b_big_ro
          \caption{ROC curve signal mc and background mc for big auto encoder without Graviton to dimuons. }
          \label{fig:roc_sig_big_allsig_nogmumu}
 \end{figure}
+
 
 
 In figure \ref{fig:s_b_big_allsig_nogmumu} and \ref{fig:roc_sig_big_allsig_nogmumu} we clearly see that the auto encoder struggles to separate background and signal mc, with a AUC score of around 0.58. This shows that for signals that are fairly similar to background mc, this model will struggle to tell them apart. Here we also observe the camel back structure, where the algorithm has grouped certain events together. There are ways to remediate this.
@@ -490,6 +505,7 @@ The kernel regularization, activation regularization and leaky relu alpha parame
      \label{fig:data_b_big_pred_stand}
 \end{figure}
 
+
 In figure \ref{fig:data_b_big_pred_stand} we see that even though the reconstruction error for ATLAS data and background mc has a wide spread, it overlaps well, which indicates that the autoencoder learned to reproduce the standard model, even though some events where much harder to reproduce than others. We also note here that only a few 10's to 100's of events have an error above $10^{3.5}$. 
 
 \begin{figure}[H]
@@ -508,10 +524,12 @@ In figure \ref{fig:data_b_big_pred_stand} we see that even though the reconstruc
 
 
 
+
 In figures \ref{fig:s_b_big_pred_stand} and \ref{fig:s_b_big_roc_stand} we observe that the model somewhat overlaps the background and signal mc, which the exception of a few thousand samples in the second peak. It appears here that the model manages to separate some signal events from the background mc. This model preformed better than the models using Min Max scaling, with a AUC score of about 0.69. \par 
 
 \section{Discussion and possible ways forward}
 There were several issues with training and tuning the model, much of which had to do with hardware. The background and signal mc data set alone was around 17 Gb of data in hdf5 format. To do training, prediction and hyper parameter searches especially, GPU usage was needed. With Tensorflow's XLA\footnote{XLA architecture can be found \href{https://www.tensorflow.org/xla/architecture}{here}, and XLA api can be found \href{https://www.tensorflow.org/xla}{here}.} (Accelerated Linear Algebra), the algorithm got a speedup from 1 hour and 30 minutes to around 1 minute per epoch when training on 80\% of the background mc. Still, because of the enormous amount of data, the hyper parameter search had to be done using a smaller sample size. Thus each epoch only took 10-30 seconds, which allowed for many iterations of hyperparameter tuning. There is however the issue that the random sampling does not guarantee accurately representing the sm background sample distribution, and thus the hyperparameters could very well have been even better tuned.  \par \par
+
 
 It is also worth noting that the ROC curves and reconstruction error figure using the signal mc only in part shows how the auto encoder performs. The signal mc samples does not represent all possible new physics, and thus we can only conclude from our results that the auto encoder struggles to separate those signal mc samples. The auto encoder has one metric, and that is minimizing reconstruction error. If you then have a signal that looks very similar to background, then the reconstruction error will be similar to the background. This does not mean that the auto encoder has not learned some hidden relations in the data, only that those relations are not enough for those kinds of signals. In the event that other signals appears in detector data, the auto encoder could still find them. \par \par
 
@@ -534,6 +552,7 @@ The camel back and box pattern shown in the results are also of interest. In the
 \section{Conclusion}
 
 In this project an attempt was made to use an auto encoder for anomaly detection on ATLAS open data. 33 features were used to describe the 2 lepton final state. All machine learning was run using the Tensorflow api, with functional structure. Several models where tuned using Keras-Tuner with a hyperband searcher to get the semi-optimal hyperparameters. Even with hyperband, we found that a large reducing of training and validation datasets were needed for fast searching. All though all of the models successfully managed to have good overlap between background mc and ATLAS Open data, only the autoencoder trained on standard scaled datasets managed to separate out signals. The results showed that the ROC score increased, when using a multi layer auto encoder, removing certain low level features and by using this standard scaling. Several proposals for improvement are given for better performance of the model, most of which have to do with expanding the amount of and range of hyper parameters. Such a search could have a large impact on the understand and use of auto encoders in anomaly detection, but are extremely time consuming. Based on the findings in this report, the auto encoder cannot be completely disregarded as a useful method for anomaly detection in high energy physics, as there are still a lot about the algorithm that is not well understood. 
+
 
 
 
