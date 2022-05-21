@@ -167,9 +167,6 @@ There are several ways to define events as anomalies and not expected events. On
 
 
 In the context of high energy physics, collective anomalies would be new physics we both do and do not have a model for.
-\\!!\\
-rewrite this sentence to clarify 
-\\!!\\
 Such anomalies could be super symmetric particles\cite{JMLR:v18:16-558}, new vector bosons or dark matter particles, as well as many other candidates. These types of searches require enormous amounts of data, and both supervised and unsupervised methods are used continuously to see if there are "hidden" relations in the data that can separate the known standard model from the unknown new physics. \par 
 
 The methods have their strengths and weaknesses, and should be used with this in mind. A supervised model will always be better to classify and separate distributions of background\footnote{Standard model processes created from Monte Carlo simulation will be denoted as "background mc". These simulations are carefully compared and corrected against data from detectors that we with high certainty claim have only standard model processes.} and signal\footnote{New physics models are created using Monte Carlo simulation, and are based around theoretically allowed properties. They have not been discovered and cannot be considered "real" new physics until they do. In this project it is denoted as "signal mc".} events. and if the signal actually exists in the data from the detector, it will give better accuracy than any (semi-) unsupervised methods. \par 
@@ -188,9 +185,7 @@ An auto encoder is a subgroup of feed forward neural networks\cite{FYSSTK}. The 
     \caption{The architecture of an autoencoder with image reconstruction as the example use. \href{https://lilianweng.github.io/posts/2018-08-12-vae/}{Source}, accessed 28.04.22}
     \label{fig:auto_en_archi}
 \end{figure}
-\\!!\\
-Check if reference two figure should be changed.
-\\!!\\
+
 
 We see here in figure \ref{fig:auto_en_archi} that the input data is deconstructed through an encoder to a lower dimensional space called the latent space, depicted here as \textbf{z}, and then reconstructed the data with the decoder. It is important to note that the number of layers, nodes per layer and activation function per layer for the encoder does not need to match the structure of the decoder. The only requirement is that the input and output layer has the same shape. The end result is the reconstructed data \textbf{x'}. The training of the model is parameterized in the following way. We define the decoder as 
 
