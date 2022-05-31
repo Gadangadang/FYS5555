@@ -88,7 +88,7 @@
 \begin{center}
 
 \begin{abstract}
-In this report we implemented an auto encoder using Tensorflow framework for anomaly detection on ATLAS open data. We compare the performance of several models, both using the reconstruction error against the ATLAS open data, and signal Monte Carlo samples with ROC curves. It was showed that using a more complex auto encoder, removing certain low level features, and standard scaling improved the auto encoders ability to filter out certain signals, with a max AUC score of around 0.68. Proposals are put forward to better understand the auto encoder and its use for anomaly detection, one of which is to expand the amount of hyper parameters and the range of them. 
+An implementation of an auto encoder using Tensorflow framework for anomaly detection have been used on ATLAS open data with $10 fb^{-1}$. We compare the performance of several models, both using the reconstruction error against the ATLAS open data, and signal Monte Carlo samples with ROC curves. It was showed that using a more complex auto encoder, removing certain low level features, and standard scaling improved the auto encoders ability to filter out certain signals, with a max AUC score of around 0.68. Proposals are put forward to better understand the auto encoder and its use for anomaly detection, one of which is to expand the amount of hyper parameters and the range of them. 
 \end{abstract}
 \end{center}
 \vspace{2.5cm}
@@ -101,7 +101,7 @@ In this report we implemented an auto encoder using Tensorflow framework for ano
 \clearpage
 \newpage
 
-\tableofcontents
+%\tableofcontents
 
 
 
@@ -114,7 +114,7 @@ In the last decade machine learning has excelled from being tedious and hard to 
 \\
 This report is structured in a theory, implementation, results and discussion, and conclusion section. In the theory section the necessary theory is introduced, with respect to both data, method of analysis and choice of evaluation. In the implementation section, data handling and software tools are discussed, with respect to cuts, event selection, scaling and feature choices, choice of hyper parameters for hyper parameter search and the software and api's used for training and tuning. In the results section the results are displayed as well as distinct observations. In the discussion section the results are discussed and proposals are made for future work, and in the conclusion I summarize my findings. 
 
-
+\newpage
 \section{Theory}
 Some of theory sections about anomaly detection and machine learning algorithms are based on earlier work done in other courses, such as \cite{FYSSTK} and \cite{ML_PROJ}.
 
@@ -204,7 +204,7 @@ where the parameters $(\xi, \theta)$ are tuned to reconstruct the data as close 
 \end{equation*}
 
 
-
+\newpage
 \section{Implementation}
 
 \subsection{Handling of data}
@@ -263,7 +263,7 @@ Certain features where removed, as they did not have a good enough overlap betwe
 
 We see in figures \ref{fig:lep1sigd0} and \ref{fig:lep2sigd0} that both have excess in the data compared to the background mc. 
 
-
+\newpage
 \section{Results}
 
 \subsection{The first model}
@@ -508,7 +508,7 @@ In figures \ref{fig:s_b_big_pred_stand} and \ref{fig:s_b_big_roc_stand} we obser
 \section{Discussion and possible ways forward}
 There were several issues with training and tuning the model, much of which had to do with hardware. The background and signal mc data set alone was around 17 Gb of data in hdf5 format. To do training, prediction and hyper parameter searches especially, GPU usage was needed. With Tensorflow's XLA\footnote{XLA architecture can be found \href{https://www.tensorflow.org/xla/architecture}{here}, and XLA api can be found \href{https://www.tensorflow.org/xla}{here}.} (Accelerated Linear Algebra), the algorithm got a speedup from 1 hour and 30 minutes to around 1 minute per epoch when training on 80\% of the background mc. Still, because of the enormous amount of data, the hyper parameter search had to be done using a smaller sample size. Thus each epoch only took 10-30 seconds, which allowed for many iterations of hyperparameter tuning. There is however the issue that the random sampling does not guarantee accurately representing the sm background sample distribution, and thus the hyperparameters could very well have been even better tuned.  \par \par
 
-It is also worth noting that the ROC curves and reconstruction error figure using the signal mc only in part shows how the auto encoder performs. The signal mc samples does not represent all possible new physics, and thus we can only conclude from our results that the auto encoder struggles to separate those signal mc samples. The auto encoder has one metric, and that is minimizing reconstruction error. If you then have a signal that looks very similar to background, then the reconstruction error will be similar to the background. This does not mean that the auto encoder has not learned some hidden relations in the data, only that those relations are not enough for those kinds of signals. In the event that other signals appears in detector data, the auto encoder could still find them. \par \par
+It is also worth noting that the ROC curves and reconstruction error figure using the signal mc only in part shows how the auto encoder performs. The signal mc samples does not represent all possible new physics, and thus we can only conclude from our results that the auto encoder struggles to separate most of those signal mc samples. The auto encoder has one metric, and that is minimizing reconstruction error. If you then have a signal that looks very similar to background, then the reconstruction error will be similar to the background. This does not mean that the auto encoder has not learned some hidden relations in the data, only that those relations are not enough for those kinds of signals. In the event that other signals appears in detector data, the auto encoder could still find them. \par \par
 
 Another crucial point to make is that in the realm of machine learning, there are few guidelines for how the architecture should look. In this case with the auto encoder, the only requirement is that in the encoder the previous layers must have at least one more node than the one after, and in the decoder the layer after must have at least one more node than the one before it. With respect to the amount of layers, regularization of layers towards bias or output, implementation of dropout layers, initialization of weights, or symmetry with regards to encoder and decoder architecture, an enormous hyper parameter search is the only way to find the ideal model. This bias that the designer of the given auto encoder brings is very hard to quantify, but is indeed crucial, and generates a gigantic pool of possibilities which, given enough time and resources could yield valuable insight. \par \par
 
@@ -516,6 +516,8 @@ Scaling also had an interesting impact on the output, as it appears that standar
 It is also important to note here that these results are all done using all signal samples, except for Graviton to dimuons. Ideally one should have had individual predictions on all the signal mc that we have to see if there are differences in the prediction, thus allowing us to see what kind of signals the auto encoder struggles to filter out and vice versa. \par \par
 
 The choice of features also contributes to the effect of the auto encoder. The removal of the $d_0$ significance for both leptons was done by looking at the distribution of data and background mc by checking the difference between them, and was done by eye sight. This could certainly have been done better, for instance by requiring a threshold for how large the ratio between data and background mc can be. \par \par
+
+%Some features contain angular information, and thus should be treated differently than other features. Assume an event has 315 degrees as some angular feature, and the auto encoder reconstructs it as 2 degrees. This is not as bad a reconstruction as if we only look at the difference between the two values as numbers. Some proposed solutions to periodic feature handling has been put forward by Str{\"u}mke and Maeland\cite{10.1007/978-981-15-1960-4_10} and could also affect the performance of the auto encoder.  \par \par
 
 From the results above it is not clear that the auto encoder is not a viable candidate for new physics search, as there are still many aspects that are not well understood. A good start would be to further study how the model learns to merge and reconstruct each feature, and if it quickly converges towards only focusing on one or a few main features. 
 
