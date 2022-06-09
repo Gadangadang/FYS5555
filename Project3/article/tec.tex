@@ -5,6 +5,7 @@
 \usepackage{graphicx} %for å inkludere grafikk
 \usepackage{verbatim} %for å inkludere filer med tegn LaTeX ikke liker
 \usepackage{mathpazo}
+\usepackage{fancyhdr}
 \usepackage{amsfonts,amsthm}
 \usepackage{amsmath}
 \usepackage{url}
@@ -103,18 +104,20 @@ An implementation of an auto encoder using Tensorflow framework for anomaly dete
 
 %\tableofcontents
 
-
+\pagestyle{fancy}
+\fancyfoot{}
+\fancyfoot[R]{\thepage}
 
 
 \section{Introduction}
 The standard model is arguably the most successful scientific model, showing remarkable accuracy comparing with experiments.
-The Higgs boson was the last missing piece, and was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS collaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS collaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new particle discoveries since the early 70's, and this is somewhat alarming. The standard model has several issues, some of them includes lack of an explanation of dark energy, cosmic inflation, the hierarchy problem and not including gravity. \par 
+The Higgs boson was the last missing piece, and was discovered in 2012 by both ATLAS\footnote{Paper from ATLAS collaboration can be found \href{https://arxiv.org/abs/1207.7214}{here}.} and CMS\footnote{Paper from CMS collaboration can be found \href{https://arxiv.org/abs/1207.7235}{here}.} at CERN. There has however not been any new physics discoveries beyond the standard model so far, and this is somewhat alarming. The standard model has several issues, some of them includes lack of an explanation of dark energy, cosmic inflation, the hierarchy problem and not including gravity. \par 
 This leads scientists to look beyond the standard model, and there are several models proposed, such as dark matter candidates, extra vector bosons and super symmetry. Attempts are made by multiple collaborations to discover evidence for these models, and there are several obstacles to overcome, such as method of analysis and sufficient amount of data. With the impressive progress of machine learning software tools such as Tensorflow\cite{tensorflow2015-whitepaper}, machine learning methods have become more and more popular as possible methods  to use for searching for new physics. \par 
 In the last decade machine learning has excelled from being tedious and hard to program to become available to almost everyone. It's scale-ability and ability to discover hidden structure in large datasets makes it an intriguing candidate to use on data from the Large Hadron Collider. One possible candidate is semi unsupervised learning, which is done by an auto encoder. The idea is to train a model-independent algorithm on datasets containing only known physics, with the hope that what ever new physics that is in the data is detected, without knowing what it is.  This machine learning model is the method of choice for this report. \par
 \\
 This report is structured in a theory, implementation, results and discussion, and conclusion section. In the theory section the necessary theory is introduced, with respect to both data, method of analysis and choice of evaluation. In the implementation section, data handling and software tools are discussed, with respect to cuts, event selection, scaling and feature choices, choice of hyper parameters for hyper parameter search and the software and api's used for training and tuning. In the results section the results are displayed as well as distinct observations. In the discussion section the results are discussed and proposals are made for future work, and in the conclusion I summarize my findings. 
 
-\newpage
+
 \section{Theory}
 Some of theory sections about anomaly detection and machine learning algorithms are based on earlier work done in other courses, such as \cite{FYSSTK} and \cite{ML_PROJ}.
 
@@ -134,14 +137,14 @@ For the purpose of this report we will mostly consider collective anomalies. Ano
 
 In high energy physics we can, using machine learning, separate anomaly detection into two categories, supervised and unsupervised searches. Figure \ref{fig:corr_class}, \ref{fig:wrong_class} and \ref{fig:unsup_class} are examples that are not based on actual predictions and are only meant as illustrations.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.49\textwidth]{figures/theory/correct_class.pdf}
     \caption{Supervised classification of anomaly where the target model is correct. Here the machine learning model manages to correctly identify the anomalies. }
     \label{fig:corr_class}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.49\textwidth]{figures/theory/wrong_class.pdf}
     \caption{Supervised classification of anomaly where the target model is wrong. Here the machine learning model fails to identify the anomalies. }
@@ -150,7 +153,7 @@ In high energy physics we can, using machine learning, separate anomaly detectio
 
 In figure \ref{fig:corr_class} we see an example of supervised classification. Because the model trained to recognize certain anomalies that are in the data set it succeeds in classifying them. In figure \ref{fig:wrong_class} we do however see that the same model does not find any anomalies, as they are completely different from the ones it trained on. 
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.49\textwidth]{figures/theory/unsuper.pdf}
     \caption{Unsupervised classification of anomaly with no target model. Here the machine learning model manages to with good precision identify the anomalies. }
@@ -179,7 +182,7 @@ In the event that some signal actually exist in the data from the detector that 
 One method to attack the anomaly detection problem is the so called (stacked) auto encoder. The idea is based on reconstruction, and has been implemented for denoising of images, image compression, and anomaly detection. 
 An auto encoder is a subgroup of feed forward neural networks\cite{FYSSTK}. The goal with that model is to compress the information into fewer variables, called the latent space, which then can explain much of the data through decoding that information. This allows the algorithm to learn the most important components of the data. An illustrative image of an auto encoder is shown in figure \ref{fig:auto_en_archi}. 
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.49\textwidth]{figures/theory/autoencoder-architecture.png}
     \caption{The architecture of an autoencoder with image reconstruction as the example use. \href{https://lilianweng.github.io/posts/2018-08-12-vae/}{Source}, accessed 28.04.22}
@@ -247,14 +250,14 @@ The auto encoder was written using the Tensorflow api\cite{tensorflow2015-whitep
 
 Certain features where removed, as they did not have a good enough overlap between mc and ATLAS data. All features where checked to ensure as good correspondence as possible, and the figures for all the features can be found in the \href{https://github.com/Gadangadang/FYS5555/tree/main/Project3}{Github repo} for this project, under the "figures/implementation" folder. The features that were chosen to be excluded where lep1\_tracksigd0pvunbiased and lep2\_tracksigd0pvunbiased, which are shown below:
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/implementation/lep1_tracksigd0pvunbiased.pdf}
     \caption{Lep1 tracksigd0unbiased histogram for background mc and ATLAS data. }
     \label{fig:lep1sigd0}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/implementation/lep2_tracksigd0pvunbiased.pdf}
     \caption{Lep2 tracksigd0unbiased histogram for background mc and ATLAS data.}
@@ -263,14 +266,14 @@ Certain features where removed, as they did not have a good enough overlap betwe
 
 We see in figures \ref{fig:lep1sigd0} and \ref{fig:lep2sigd0} that both have excess in the data compared to the background mc. 
 
-\newpage
+
 \section{Results}
 
 \subsection{The first model}
 
 The first auto encoder model was found with a hyper parameter search and is structured as shown in figure \ref{fig:big_ae_plot}. 
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_big_rm3feats.pdf}
     \caption{Auto encoder architecture after hyper parameter search. }
@@ -296,7 +299,7 @@ the decoder has the following activation functions:
 The optimal learning rate was 0.0015, the optimal kernel regularizer was 0.05, the optimal activity regularizer was 0.5 and the optimal alpha for the leakyReLU was 1. The batch size for both training, tuning and prediction was 8192. These hyper parameters was found after around 30 minutes of searching, and then stopped, as it appeared that the validation MSE did not improve much. Thus, there are most likely a better set of hyper parameters that could get an even lower validation MSE. \par 
 The reconstruction error of ATLAS data is shown in figure \ref{fig:data_b_big_pred}.
 
-\begin{figure}[H]
+\begin{figure}[h]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3feats_loglog.pdf}
          \caption{Log log histogram showing reconstruction error for ATLAS data and background mc for big auto encoder. }
@@ -306,7 +309,7 @@ The reconstruction error of ATLAS data is shown in figure \ref{fig:data_b_big_pr
 In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good overlap of reconstruction error between ATLAS data and background mc. This is in accordance with the fact that the ATLAS collaboration has with very high certainty only found standard model events in the ATLAS Open Data. We also observe here that the algorithm groups events with different error, as shown with the camel back pattern. This pattern is repeated several times in figure \ref{fig:data_b_big_pred}, which indicates that the algorithm learned its own categories for the standard model. Using all the signal mc samples, I tested if the classifier could distinguish new physics signal mc from background mc by mere reconstruction. The reconstruction error is shown in figure \ref{fig:s_b_big_pred_allsig}.
 
 
-\begin{figure}[H]
+\begin{figure}[h]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big_rm3feats_loglog.pdf}
     \caption{Log log histogram showing reconstruction error of background mc and signal mc for big auto encoder with all signal samples.  }
@@ -314,7 +317,7 @@ In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good ove
 \end{figure}
 
 
-\begin{figure}[H]    
+\begin{figure}[h]    
     
     \centering
          \includegraphics[width=0.46\textwidth]{figures/results/rocs/b_s_roc_curve_big_allsig.pdf}
@@ -326,14 +329,14 @@ In figure \ref{fig:data_b_big_pred} we see that the auto encoder gets a good ove
 From the results in figure \ref{fig:s_b_big_pred_allsig} and \ref{fig:s_b_big_roc_allsig} we see that the auto encoder very well manages to separate signal from background, having only been shown background mc. However, there is some problems with these results. The Randall-Sundrum Graviton to dimuons samples in the signal mc were given with very high weights compared to the Graviton to dielectrons samples, which highly indicates that the data samples are corrupt somehow. Thus we have to check the reconstruction error on signal mc without the Randall-Sundrum Graviton samples. This is shown in figure \ref{fig:roc_sig_big_allsig_nogmumu}.
 
 
-\begin{figure}[H]    
+\begin{figure}[h]    
      \centering
     \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats.pdf}
     \caption{Log log histogram showing reconstruction error of background mc and signal mc for big auto encoder without Graviton to dimuons.  }
     \label{fig:s_b_big_allsig_nogmumu}
 \end{figure}
 
-\begin{figure}[H]    
+\begin{figure}[h]    
   \centering
          \includegraphics[width=0.46\textwidth]{figures/results/rocs/b_s_roc_curve_big_rm3feats.pdf}
          \caption{ROC curve signal mc and background mc for big auto encoder without Graviton to dimuons. }
@@ -349,7 +352,7 @@ In figure \ref{fig:s_b_big_allsig_nogmumu} and \ref{fig:roc_sig_big_allsig_nogmu
 
 One alternative to remediate is to alter the architecture of the auto encoder. To compare this architecture I created a smaller auto encoder, shown in figure \ref{fig:small_ae_plot}.
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_small.pdf}
     \caption{Smaller auto encoder architecture after hyper parameter search. }
@@ -359,7 +362,7 @@ One alternative to remediate is to alter the architecture of the auto encoder. T
 The hyper parameters used for this model was a learning rate of 0.9, 24 nodes in the latent space, the activation function for the latent space was tanh, the activation function for the output was linear, the kernel regularization was 0.05 and the activation regularization was 0.01. The batch size for both training, tuning and prediction was 8192. The model was trained for 6 epochs. 
 
 
-\begin{figure}[H]
+\begin{figure}[h]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_small_rm3_feats_nogmumu.pdf}
          \caption{Log log histogram showing reconstruction error for ATLAS data and background mc for small auto encoder. }
@@ -369,7 +372,7 @@ The hyper parameters used for this model was a learning rate of 0.9, 24 nodes in
 
 Using the architecture in figure \ref{fig:small_ae_plot} we see a good overlap of ATLAS data and background mc, with a center of about 4 MSE reconstruction error. Here we see that the algorithm creates what appears to be one group. 
 
-\begin{figure}[H]    
+\begin{figure}[h]    
  \centering
     \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_small_rm3_feats_nogmumu_nolog.pdf}
     \caption{Log log histogram showing reconstruction error of background mc and signal mc for small auto encoder. }
@@ -377,7 +380,7 @@ Using the architecture in figure \ref{fig:small_ae_plot} we see a good overlap o
   
 \end{figure}
 
-\begin{figure}[H]    
+\begin{figure}[h]    
   \centering
          \includegraphics[width=0.46\textwidth]{figures/results/rocs/b_s_roc_curve_small_nogmumu.pdf}
          \caption{ROC curve signal mc and background mc for small auto encoder}
@@ -394,7 +397,7 @@ Another idea is removing low level features that are fairly similar for backgrou
 
 
 
-\begin{figure}[H]    
+\begin{figure}[h]    
   \centering
          \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_13feats_big.pdf}
          \caption{Auto encoder architecture found by hyper parameter search with 13 features in the input.}
@@ -420,7 +423,7 @@ The decoder had the following activation functions
 \end{enumerate}
 The kernel regularization was 0.5, the activation regularization was 0.5, the leakyrelu alpha parameter was 0.1 and the learning rate was 0.0015. The batch size for both training, tuning and prediction was 8192. The model was trained with 5 epochs.
 
-\begin{figure}[H]
+\begin{figure}[h]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3_feats_rmmanyfeats_loglog.pdf}
          \caption{Log log histogram showing reconstruction error for ATLAS data and background mc for big auto encoder using only 13 features.}
@@ -429,14 +432,14 @@ The kernel regularization was 0.5, the activation regularization was 0.5, the le
 
 In figure \ref{fig:data_b_big_pred_13feats} we observe that the reconstruction error of ATLAS data and background mc have fairly good overlap. As expected the reconstruction distribution is centered at a much lower value than for the larger data sets, as there are a lot fewer features to reconstruct. We also see here that the algorithm separates some of the events into at least two groups, with a clear split around 1 MSE. 
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats_rmmanyfeats_loglog.pdf}
     \caption{Log log histogram showing reconstruction error of background mc and signal mc for big auto encoder using only 13 features. }
     \label{fig:roc_sig_big_13feats}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
          \includegraphics[width=0.46\textwidth]{figures/results/rocs/b_s_roc_curve_big_rmmanyfeats.pdf}
          \caption{ROC curve signal mc and background mc for big auto encoder using only 13 features.}
@@ -453,7 +456,7 @@ njet60,  nbjet85, isOS,isSF,  mt2, met\_et, lep1\_pt,lep1\_E, lep1\_ptcone30, le
 A third option is to change the scaling and look at its effect on the handling of data. The previous models have all used MinMax scaling to scale the data, where as this model used standard scaling instead. 
 
 
-\begin{figure}[H]
+\begin{figure}[h]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/models/ae_model_plot_big_rm3feats_standard_propsigbacksplit.pdf}
          \caption{Auto encoder architecture after tuning of hyper parameters using standard scaling on the datasets. }
@@ -478,7 +481,7 @@ The activation functions for the decoder were
 
 The kernel regularization, activation regularization and leaky relu alpha parameter were all 0.01, and the learning rate as 0.0015. The batch size for both training, tuning and prediction was 8192. The model was trained with 15 epochs.
 
-\begin{figure}[H]
+\begin{figure}[h]
      \centering
          \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_data_recon_big_rm3_feats_standard_propsigbacksplit.pdf}
          \caption{Log log histogram showing reconstruction error for ATLAS data and background mc for big auto encoder, using standard scaling.}
@@ -487,14 +490,14 @@ The kernel regularization, activation regularization and leaky relu alpha parame
 
 In figure \ref{fig:data_b_big_pred_stand} we see that even though the reconstruction error for ATLAS data and background mc has a wide spread, it overlaps well, which indicates that the autoencoder learned to reproduce the standard model, even though some events where much harder to reproduce than others. We also note here that only a few 10's to 100's of events have an error above $10^{3.5}$. 
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
     \includegraphics[width=0.46\textwidth]{figures/results/predictions/b_s_recon_big_rm3_feats_standard_propsigbacksplit_nolog_allsig_nogmumu.pdf}
     \caption{Log log histogram showing reconstruction error of background mc and signal mc for big auto encoder, using standard scaling. }
     \label{fig:s_b_big_pred_stand}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
          \includegraphics[width=0.46\textwidth]{figures/results/rocs/b_s_roc_curve_big_standard_allsig_nogmumu.pdf}
          \caption{ROC curve signal mc and background mc for big auto encoder, using standard scaling.}
@@ -545,7 +548,7 @@ In this project an attempt was made to use an auto encoder for anomaly detection
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % left fixed width
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}} % center fixed width
 \newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % flush right fixed width
-\begin{table}[H]
+\begin{table}[h]
     % \setlength{\tabcolsep}{15pt}
     \renewcommand{\arraystretch}{1.3}
     \begin{center}
@@ -556,9 +559,9 @@ In this project an attempt was made to use an auto encoder for anomaly detection
     njet20 & int & Number of jets with $p_T > 20$ GeV\\ \hline
     njet60 & int & Number of jets with $p_T > 60$ GeV  \\ \hline
     nbjet60 & int & Number of b-jets with $p_T > 60$ GeV  \\ \hline
-    nbjet70 & int & Number of b-jets with   \\ \hline
-    nbjet77 & int & Number of b-jets with   \\ \hline
-    nbjet85 & int & Number of b-jets with   \\ \hline
+    nbjet70 & int & Number of b-jets with with given machine learning output b-tag certainty \\ \hline
+    nbjet77 & int & Number of b-jets with  with given machine learning output b-tag certainty  \\ \hline
+    nbjet85 & int & Number of b-jets with with given machine learning output b-tag certainty   \\ \hline
     isOS  & int & 1 if leptons have opposite charge, 0 if leptons have same charge \\ \hline
     isSF & int & 1 if leptons are of same flavor, 0 is leptons are of different flavor, flavor code 11 is electron, flavor code 13 is muon \\ \hline
     mll & float & Invariant mass of the two leptons \\ \hline
